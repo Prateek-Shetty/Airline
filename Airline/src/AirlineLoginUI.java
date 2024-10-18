@@ -10,7 +10,10 @@ public class AirlineLoginUI extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
         
-        // Load images (Update these paths based on your assets folder)
+        // Disable maximizing the window
+        setResizable(false);
+
+        // Load images (using getClass().getResource() for classpath access)
         ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/assets/airplane_background.jpg"));
         ImageIcon userIcon = new ImageIcon(getClass().getResource("/assets/user_icon.png"));
         ImageIcon lockIcon = new ImageIcon(getClass().getResource("/assets/lock_icon.png"));
@@ -18,7 +21,6 @@ public class AirlineLoginUI extends JFrame {
         ImageIcon facebookIcon = new ImageIcon(getClass().getResource("/assets/facebook_icon.png"));
         ImageIcon twitterIcon = new ImageIcon(getClass().getResource("/assets/twitter_icon.png"));
         ImageIcon logoIcon = new ImageIcon(getClass().getResource("/assets/airline_logo.png"));
-
 
         // Background image: airplane or cloud-themed
         JPanel backgroundPanel = new JPanel() {
@@ -38,12 +40,20 @@ public class AirlineLoginUI extends JFrame {
         mainPanel.setBackground(new Color(255, 255, 255, 180)); // Semi-transparent white
         mainPanel.setBounds(40, 180, 320, 400);
         mainPanel.setLayout(null);
-        mainPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
+        mainPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
         backgroundPanel.add(mainPanel);
 
-        // Airline logo (Placeholder)
-        JLabel logo = new JLabel(logoIcon); // Use your airline logo here
-        logo.setBounds(100, 10, 120, 40);
+        // Load and scale the logo
+        Image logoImage = logoIcon.getImage().getScaledInstance(120, 40, Image.SCALE_SMOOTH);
+        JLabel logo = new JLabel(new ImageIcon(logoImage));
+
+        // Center the logo
+        int logoWidth = logo.getPreferredSize().width;
+        int logoHeight = logo.getPreferredSize().height;
+        int x = (backgroundPanel.getWidth() - logoWidth) / 2;
+        int y = 30; // Fixed vertical position; adjust as needed
+
+        logo.setBounds(x, y, logoWidth, logoHeight);
         backgroundPanel.add(logo);
 
         // Welcome title
@@ -54,7 +64,8 @@ public class AirlineLoginUI extends JFrame {
         backgroundPanel.add(welcomeLabel);
 
         // User icon & field
-        JLabel userLabel = new JLabel(userIcon); // Use airline-styled icons
+        Image scaledUserIcon = userIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        JLabel userLabel = new JLabel(new ImageIcon(scaledUserIcon));
         userLabel.setBounds(20, 40, 20, 20);
         mainPanel.add(userLabel);
 
@@ -66,11 +77,12 @@ public class AirlineLoginUI extends JFrame {
         mainPanel.add(userField);
 
         // Password icon & field
-        JLabel passLabel = new JLabel(lockIcon);
+        Image scaledLockIcon = lockIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+        JLabel passLabel = new JLabel(new ImageIcon(scaledLockIcon));
         passLabel.setBounds(20, 90, 20, 20);
         mainPanel.add(passLabel);
 
-        JPasswordField passField = new JPasswordField();  // Removed the prefilled text for security
+        JPasswordField passField = new JPasswordField("Password");
         passField.setBounds(50, 90, 230, 25);
         passField.setFont(new Font("Arial", Font.PLAIN, 14));
         passField.setForeground(Color.GRAY);
@@ -112,20 +124,24 @@ public class AirlineLoginUI extends JFrame {
         socialLabel.setForeground(Color.GRAY);
         mainPanel.add(socialLabel);
 
-        JLabel instagramLabel = new JLabel(instagramIcon); // Corrected duplicate variable name
+        // Social media icons (scaled properly)
+        Image scaledInstagramIcon = instagramIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        JLabel instagramLabel = new JLabel(new ImageIcon(scaledInstagramIcon));
         instagramLabel.setBounds(60, 280, 30, 30);
         mainPanel.add(instagramLabel);
 
-        JLabel facebookLabel = new JLabel(facebookIcon);   // Corrected duplicate variable name
+        Image scaledFacebookIcon = facebookIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        JLabel facebookLabel = new JLabel(new ImageIcon(scaledFacebookIcon));
         facebookLabel.setBounds(130, 280, 30, 30);
         mainPanel.add(facebookLabel);
 
-        JLabel twitterLabel = new JLabel(twitterIcon);     // Corrected duplicate variable name
+        Image scaledTwitterIcon = twitterIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        JLabel twitterLabel = new JLabel(new ImageIcon(scaledTwitterIcon));
         twitterLabel.setBounds(200, 280, 30, 30);
         mainPanel.add(twitterLabel);
 
         // Footer (terms, policies)
-        JLabel footer = new JLabel("<html><center>By logging in, you agree to our<br>Terms and Privacy Policy.</center></html>");
+        JLabel footer = new JLabel("<html><center><br>By logging in, you agree to our<br>Terms and Privacy Policy.</center></html>");
         footer.setBounds(70, 600, 260, 40);
         footer.setForeground(Color.WHITE);
         footer.setFont(new Font("Arial", Font.PLAIN, 12));
