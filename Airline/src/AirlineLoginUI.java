@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class AirlineLoginUI extends JFrame {
 
@@ -109,6 +111,18 @@ public class AirlineLoginUI extends JFrame {
                 loginButton.setBackground(new Color(33, 150, 243));
             }
         });
+
+        // Action listener for the LOG IN button to redirect to Flight Booking UI
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Redirect to Flight Booking UI
+                FlightBookingUI flightBookingUI = new FlightBookingUI();
+                flightBookingUI.setVisible(true);
+                dispose(); // Close the current login window
+            }
+        });
+
         mainPanel.add(loginButton);
 
         // Forgot password link
