@@ -7,7 +7,7 @@ public class AdminDashboard extends JFrame {
 
     public AdminDashboard() {
         setTitle("Admin Dashboard");
-        setSize(600, 600);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         add(new BackgroundPanel());
@@ -15,45 +15,74 @@ public class AdminDashboard extends JFrame {
     }
 
     static class BackgroundPanel extends JPanel {
-        private Image backgroundImage;
+        private final Image backgroundImage;
 
         public BackgroundPanel() {
-            // Load the background image (use relative path for portability)
             backgroundImage = new ImageIcon(getClass().getResource("/assets/Flight-into-space.jpg")).getImage();
-            setLayout(null);
-            addButtons();
+            setLayout(new BorderLayout());
+
+            add(createHeaderPanel(), BorderLayout.NORTH);
+            add(createButtonPanel(), BorderLayout.CENTER);
         }
 
-        private void addButtons() {
-            JButton welcomeButton = new JButton("Welcome to Admin Page");
-            JButton flightsButton = new JButton("Flights Info");
-            JButton customerDataButton = new JButton("Customer Data");
-            JButton manageButton = new JButton("Manage");
+        private JPanel createHeaderPanel() {
+            JPanel headerPanel = new JPanel();
+            headerPanel.setOpaque(false);
+            JLabel titleLabel = new JLabel("Admin Dashboard");
+            titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
+            titleLabel.setForeground(new Color(255, 215, 0));
+            titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+            headerPanel.add(titleLabel);
+            return headerPanel;
+        }
 
-            // Set button colors
-            welcomeButton.setBackground(Color.BLUE);
-            welcomeButton.setForeground(Color.WHITE);
-            flightsButton.setBackground(Color.GREEN);
-            flightsButton.setForeground(Color.BLACK);
-            customerDataButton.setBackground(Color.ORANGE);
-            customerDataButton.setForeground(Color.BLACK);
-            manageButton.setBackground(Color.RED);
-            manageButton.setForeground(Color.WHITE);
+        private JPanel createButtonPanel() {
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setLayout(new GridLayout(2, 2, 20, 20));
+            buttonPanel.setOpaque(false);
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80));
 
-            // Set bounds for buttons
-            welcomeButton.setBounds(150, 0, 250, 30);
-            flightsButton.setBounds(0, 200, 150, 30);
-            customerDataButton.setBounds(200, 200, 150, 30);
-            manageButton.setBounds(400, 200, 150, 30);
+            // Buttons with new styles
+            JButton flightsButton = createStyledButton("Flights Info", Color.CYAN);
+            JButton customerDataButton = createStyledButton("Customer Data", new Color(173, 216, 230));
+            JButton manageButton = createStyledButton("Manage", new Color(50, 205, 50));
+            JButton settingsButton = createStyledButton("Settings", new Color(255, 99, 71));
 
             flightsButton.addActionListener(e -> new NewWindow());
             customerDataButton.addActionListener(e -> openCustomerDataWindow());
             manageButton.addActionListener(e -> new EditFlightInfoWindow());
+            settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Settings not yet implemented!"));
 
-            add(welcomeButton);
-            add(flightsButton);
-            add(customerDataButton);
-            add(manageButton);
+            buttonPanel.add(flightsButton);
+            buttonPanel.add(customerDataButton);
+            buttonPanel.add(manageButton);
+            buttonPanel.add(settingsButton);
+            return buttonPanel;
+        }
+
+        private JButton createStyledButton(String text, Color color) {
+            JButton button = new JButton(text);
+            button.setBackground(color.darker());
+            button.setForeground(Color.WHITE);
+            button.setFont(new Font("Arial", Font.BOLD, 16));
+            button.setFocusPainted(false);
+            button.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.WHITE, 2),
+                    BorderFactory.createEmptyBorder(15, 15, 15, 15)
+            ));
+            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Add hover effect
+            button.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    button.setBackground(color.brighter());
+                }
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    button.setBackground(color.darker());
+                }
+            });
+            return button;
         }
 
         @Override
@@ -64,22 +93,21 @@ public class AdminDashboard extends JFrame {
     }
 
     private static void openCustomerDataWindow() {
-        JFrame frame2 = new JFrame();
-        frame2.setSize(400, 400);
-        frame2.setTitle("Customer Details");
-        frame2.setVisible(true);
+        JFrame frame2 = new JFrame("Customer Details");
+        frame2.setSize(500, 400);
+        frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame2.setLayout(new BorderLayout());
 
         String[][] data = {
-            {"Moksh", "87685422", "5224", "Chennai"},
-            {"Jolie", "4742525", "9865", "Amsterdam"},
+                {"Moksh", "87685422", "5224", "Chennai"},
+                {"Jolie", "4742525", "9865", "Amsterdam"},
         };
-
         String[] columnNames = {"CustomerName", "ContactInfo", "BookingID", "FlightDestination"};
-
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBounds(50, 50, 300, 100);
         frame2.add(scrollPane, BorderLayout.CENTER);
+
+        frame2.setVisible(true);
     }
 
     static class EditFlightInfoWindow {
@@ -89,8 +117,8 @@ public class AdminDashboard extends JFrame {
 
         EditFlightInfoWindow() {
             frame = new JFrame("Edit Flight Info");
-            frame.setSize(400, 300);
-            frame.setLayout(new GridLayout(4, 2));
+            frame.setSize(450, 300);
+            frame.setLayout(new GridLayout(4, 2, 10, 10));
 
             frame.add(new JLabel("Flight Name:"));
             flightNameField = new JTextField();
@@ -105,6 +133,10 @@ public class AdminDashboard extends JFrame {
             frame.add(departureTimeField);
 
             saveButton = new JButton("Save Changes");
+            saveButton.setBackground(new Color(60, 179, 113));
+            saveButton.setForeground(Color.WHITE);
+            saveButton.setFont(new Font("Arial", Font.BOLD, 14));
+            saveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
             saveButton.addActionListener(new SaveButtonListener());
             frame.add(saveButton);
 
@@ -115,40 +147,40 @@ public class AdminDashboard extends JFrame {
         static class SaveButtonListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement save logic here
+                JOptionPane.showMessageDialog(null, "Flight Information Saved!");
             }
         }
     }
 
     static class NewWindow {
-        JFrame frames = new JFrame();
+        JFrame frames;
         JButton closeButton;
 
         NewWindow() {
-            frames.setSize(400, 400);
-            frames.setTitle("Flights Info");
+            frames = new JFrame("Flights Info");
+            frames.setSize(500, 400);
             frames.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frames.setLayout(new BorderLayout());
 
             String[][] data = {
-                {"1E345", "AirIndia", "13:00", "14:15", "Chennai", "28"},
-                {"1E346", "IndiGo", "14:00", "15:15", "Lucknow", "38"},
-                {"1E347", "SpiceJet", "15:00", "16:15", "Delhi", "8"},
-                {"1E348", "Vistara", "16:00", "17:15", "Mumbai", "2"},
-                {"1E349", "GoAir", "17:00", "18:15", "Udaipur", "45"},
+                    {"1E345", "AirIndia", "13:00", "14:15", "Chennai", "28"},
+                    {"1E346", "IndiGo", "14:00", "15:15", "Lucknow", "38"},
+                    {"1E347", "SpiceJet", "15:00", "16:15", "Delhi", "8"},
+                    {"1E348", "Vistara", "16:00", "17:15", "Mumbai", "2"},
+                    {"1E349", "GoAir", "17:00", "18:15", "Udaipur", "45"},
             };
-
             String[] columnNames = {
-                "Flight Number", "Flight Name", "Arrival Time", "Departure Time", "Destination", "Available Seats"
+                    "Flight Number", "Flight Name", "Arrival Time", "Departure Time", "Destination", "Available Seats"
             };
-
             JTable table = new JTable(data, columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
             frames.add(scrollPane, BorderLayout.CENTER);
 
             closeButton = new JButton("Close");
-            closeButton.setBackground(Color.RED);
+            closeButton.setBackground(new Color(139, 0, 0));
             closeButton.setForeground(Color.WHITE);
+            closeButton.setFont(new Font("Arial", Font.BOLD, 14));
+            closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
             closeButton.addActionListener(e -> frames.dispose());
             frames.add(closeButton, BorderLayout.SOUTH);
 
