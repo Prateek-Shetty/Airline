@@ -116,12 +116,21 @@ public class AirlineLoginUI extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Redirect to Flight Booking UI
-                FlightBookingUI flightBookingUI = new FlightBookingUI();
-                flightBookingUI.setVisible(true);
+                String email = userField.getText().trim();
+                String password = new String(passField.getPassword());
+        
+                // Check credentials for admin login
+                if (email.equals("admin@gmail.com") && password.equals("admin123")) {
+                    AdminDashboard adminDashboard = new AdminDashboard();
+                    adminDashboard.setVisible(true);
+                } else {
+                    FlightBookingUI flightBookingUI = new FlightBookingUI();
+                    flightBookingUI.setVisible(true);
+                }
                 dispose(); // Close the current login window
             }
         });
+        
 
         mainPanel.add(loginButton);
 

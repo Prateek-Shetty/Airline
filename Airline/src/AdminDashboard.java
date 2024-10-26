@@ -1,29 +1,26 @@
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
 
-public class AdminDashboard implements ActionListener {
+public class AdminDashboard extends JFrame {
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(AdminDashboard::createAndShowGUI);
-    }
-
-    private static void createAndShowGUI() {
-        JFrame frame = new JFrame();
-        frame.setSize(600, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new BackgroundPanel()); 
-        frame.setVisible(true);
+    public AdminDashboard() {
+        setTitle("Admin Dashboard");
+        setSize(600, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        add(new BackgroundPanel());
+        setVisible(true);
     }
 
     static class BackgroundPanel extends JPanel {
         private Image backgroundImage;
 
         public BackgroundPanel() {
-            // Load the background image
-            backgroundImage = new ImageIcon("C:\\Users\\hp\\Documents\\GitHub\\Airline\\Airline\\src\\assets\\Flight-into-space.jpg").getImage(); // Change the path to your image
-            setLayout(null); 
+            // Load the background image (use relative path for portability)
+            backgroundImage = new ImageIcon(getClass().getResource("/assets/Flight-into-space.jpg")).getImage();
+            setLayout(null);
             addButtons();
         }
 
@@ -75,7 +72,6 @@ public class AdminDashboard implements ActionListener {
         String[][] data = {
             {"Moksh", "87685422", "5224", "Chennai"},
             {"Jolie", "4742525", "9865", "Amsterdam"},
-            // Add more data as needed
         };
 
         String[] columnNames = {"CustomerName", "ContactInfo", "BookingID", "FlightDestination"};
@@ -86,7 +82,6 @@ public class AdminDashboard implements ActionListener {
         frame2.add(scrollPane, BorderLayout.CENTER);
     }
 
-    // New class for editing flight information
     static class EditFlightInfoWindow {
         JFrame frame;
         JTextField flightNameField, arrivalTimeField, departureTimeField;
@@ -117,19 +112,14 @@ public class AdminDashboard implements ActionListener {
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
 
-        // Listener for the save button
         static class SaveButtonListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Handle save action
-                // Close the editing window after saving
-                // Implement your saving logic here
+                // Implement save logic here
             }
         }
     }
 
-    
-    
     static class NewWindow {
         JFrame frames = new JFrame();
         JButton closeButton;
@@ -140,44 +130,29 @@ public class AdminDashboard implements ActionListener {
             frames.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frames.setLayout(new BorderLayout());
 
-            // Create flight data
             String[][] data = {
                 {"1E345", "AirIndia", "13:00", "14:15", "Chennai", "28"},
                 {"1E346", "IndiGo", "14:00", "15:15", "Lucknow", "38"},
                 {"1E347", "SpiceJet", "15:00", "16:15", "Delhi", "8"},
                 {"1E348", "Vistara", "16:00", "17:15", "Mumbai", "2"},
                 {"1E349", "GoAir", "17:00", "18:15", "Udaipur", "45"},
-                // Add more flight data as needed
             };
 
             String[] columnNames = {
                 "Flight Number", "Flight Name", "Arrival Time", "Departure Time", "Destination", "Available Seats"
             };
 
-            // Create the JTable
             JTable table = new JTable(data, columnNames);
-
-            // Create a JScrollPane and add the table to it
             JScrollPane scrollPane = new JScrollPane(table);
             frames.add(scrollPane, BorderLayout.CENTER);
 
-            // Create a close button
             closeButton = new JButton("Close");
             closeButton.setBackground(Color.RED);
             closeButton.setForeground(Color.WHITE);
             closeButton.addActionListener(e -> frames.dispose());
-
-            // Add the close button to the bottom of the frame
             frames.add(closeButton, BorderLayout.SOUTH);
 
-            // Make the frame visible
             frames.setVisible(true);
         }
     }
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
-	}
 }
