@@ -1,7 +1,7 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+//import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -234,16 +234,27 @@ public class FlightBookingUI extends JFrame {
     private void bookFlight() {
         int selectedRow = flightsTable.getSelectedRow();
         if (selectedRow != -1) {
+            // Gather booking information
             String flightNumber = flightsModel.getValueAt(selectedRow, 0).toString();
             String departure = flightsModel.getValueAt(selectedRow, 1).toString();
             String arrival = flightsModel.getValueAt(selectedRow, 2).toString();
             String price = flightsModel.getValueAt(selectedRow, 3).toString();
-            confirmationArea.setText("Flight Number: " + flightNumber + "\nDeparture: " + departure + "\nArrival: " + arrival + "\nPrice: " + price);
-            tabbedPane.setSelectedIndex(1); // Switch to Confirmation tab
+            
+            // Format details to pass to the confirmation page
+            String confirmationDetails = "Flight Number: " + flightNumber + "\nDeparture: " + departure +
+                                         "\nArrival: " + arrival + "\nPrice: " + price;
+            
+            // Open the AirlineBookingConfirmed page
+            new AirlineBookingConfirmation(confirmationDetails); // Ensure this class displays booking details
+    
+            // Optional: Close current page if needed
+            dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Please select a flight to book.", "No Flight Selected", JOptionPane.WARNING_MESSAGE);
         }
     }
+    
+    
 
     public static void main(String[] args) {
         new FlightBookingUI();
