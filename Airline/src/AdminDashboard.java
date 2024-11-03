@@ -12,7 +12,10 @@ public class AdminDashboard extends JFrame {
         setLocationRelativeTo(null);
         add(new BackgroundPanel());
         setVisible(true);
+        // Disable maximizing the window
+        setResizable(false);
     }
+    
 
     static class BackgroundPanel extends JPanel {
         private final Image backgroundImage;
