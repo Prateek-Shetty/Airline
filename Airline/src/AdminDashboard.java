@@ -1,91 +1,114 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.*;
 
-public class AdminDashboard extends JFrame {
+public class AdminDashboard implements ActionListener {
 
-    public AdminDashboard() {
-        setTitle("Admin Dashboard");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        add(new BackgroundPanel());
-        setVisible(true);
-        // Disable maximizing the window
-        setResizable(false);
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(AdminDashboard::createAndShowGUI);
     }
-    
+
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame();
+        frame.setSize(600, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(new BackgroundPanel());
+        frame.setJMenuBar(createMenuBar()); // Set the menu bar
+        frame.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+        frame.setVisible(true);
+    }
+
+    private static JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.setBackground(Color.ORANGE);
+        menuBar.setPreferredSize(new Dimension(600, 40));
+
+        JPanel menuPanel = new JPanel();
+        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.X_AXIS));
+        menuPanel.setBackground(Color.ORANGE);
+
+        JLabel airlineLabel = new JLabel("Indian Airlines @1953");
+        airlineLabel.setForeground(Color.black);
+        airlineLabel.setFont(new Font("Arial", Font.BOLD, 8));
+
+        menuPanel.add(airlineLabel);
+        menuPanel.add(Box.createHorizontalGlue());
+
+        JMenuItem customerDataMenuItem = new JMenuItem("Customer Data");
+        JMenuItem manageMenuItem = new JMenuItem("Manage");
+        JMenuItem flightsMenuItem = new JMenuItem("Flights Info");
+
+        // Set background colors, remove borders, and set opaque for menu items
+        customizeMenuItem(customerDataMenuItem);
+        customizeMenuItem(manageMenuItem);
+        customizeMenuItem(flightsMenuItem);
+
+        customerDataMenuItem.addActionListener(e -> openCustomerDataWindow());
+        manageMenuItem.addActionListener(e -> new EditFlightInfoWindow());
+        flightsMenuItem.addActionListener(e -> new NewWindow());
+
+        menuPanel.add(customerDataMenuItem);
+        menuPanel.add(Box.createHorizontalStrut(20));
+        menuPanel.add(manageMenuItem);
+        menuPanel.add(Box.createHorizontalStrut(20));
+        menuPanel.add(flightsMenuItem);
+
+        menuBar.add(menuPanel);
+
+        return menuBar;
+    }
+
+    private static void customizeMenuItem(JMenuItem menuItem) {
+        menuItem.setBackground(Color.ORANGE);
+        menuItem.setForeground(Color.black);
+        menuItem.setFont(new Font("Arial", Font.BOLD, 14));
+        menuItem.setOpaque(true);
+        menuItem.setBorder(null); // Remove the border
+    }
+
+    private static JPanel createBottomMenuBar() {
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new GridLayout(2, 1));
+        bottomPanel.setBackground(Color.GREEN);
+
+        JButton bottomButton1 = new JButton("@Indian Airlines");
+        bottomButton1.setBackground(Color.GREEN);
+        bottomButton1.setForeground(Color.black);
+        bottomButton1.setBorderPainted(false);
+
+        JPanel button2Panel = new JPanel();
+        button2Panel.setLayout(new BorderLayout());
+        button2Panel.setBackground(Color.BLUE);
+
+        JButton bottomButton2 = new JButton("All rights reserved with Government of India");
+        bottomButton2.setBackground(Color.GREEN);
+        bottomButton2.setForeground(Color.black);
+        bottomButton2.setBorderPainted(false);
+
+        button2Panel.add(bottomButton2, BorderLayout.NORTH);
+
+        bottomPanel.add(bottomButton1);
+        bottomPanel.add(button2Panel);
+
+        return bottomPanel;
+    }
 
     static class BackgroundPanel extends JPanel {
-        private final Image backgroundImage;
+        private Image backgroundImage;
 
         public BackgroundPanel() {
-            backgroundImage = new ImageIcon(getClass().getResource("/assets/Flight-into-space.jpg")).getImage();
-            setLayout(new BorderLayout());
-
-            add(createHeaderPanel(), BorderLayout.NORTH);
-            add(createButtonPanel(), BorderLayout.CENTER);
+            backgroundImage = new ImageIcon("C:\\Users\\hp\\Documents\\GitHub\\Airline\\Airline\\src\\assets\\image.png").getImage();
+            setLayout(null);
+            addButtons();
         }
 
-        private JPanel createHeaderPanel() {
-            JPanel headerPanel = new JPanel();
-            headerPanel.setOpaque(false);
-            JLabel titleLabel = new JLabel("Admin Dashboard");
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 36));
-            titleLabel.setForeground(new Color(255, 215, 0));
-            titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
-            headerPanel.add(titleLabel);
-            return headerPanel;
-        }
-
-        private JPanel createButtonPanel() {
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setLayout(new GridLayout(2, 2, 20, 20));
-            buttonPanel.setOpaque(false);
-            buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 80, 40, 80));
-
-            // Buttons with new styles
-            JButton flightsButton = createStyledButton("Flights Info", Color.CYAN);
-            JButton customerDataButton = createStyledButton("Customer Data", new Color(173, 216, 230));
-            JButton manageButton = createStyledButton("Manage", new Color(50, 205, 50));
-            JButton settingsButton = createStyledButton("Settings", new Color(255, 99, 71));
-
-            flightsButton.addActionListener(e -> new NewWindow());
-            customerDataButton.addActionListener(e -> openCustomerDataWindow());
-            manageButton.addActionListener(e -> new EditFlightInfoWindow());
-            settingsButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Settings not yet implemented!"));
-
-            buttonPanel.add(flightsButton);
-            buttonPanel.add(customerDataButton);
-            buttonPanel.add(manageButton);
-            buttonPanel.add(settingsButton);
-            return buttonPanel;
-        }
-
-        private JButton createStyledButton(String text, Color color) {
-            JButton button = new JButton(text);
-            button.setBackground(color.darker());
-            button.setForeground(Color.WHITE);
-            button.setFont(new Font("Arial", Font.BOLD, 16));
-            button.setFocusPainted(false);
-            button.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(Color.WHITE, 2),
-                    BorderFactory.createEmptyBorder(15, 15, 15, 15)
-            ));
-            button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-            // Add hover effect
-            button.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseEntered(java.awt.event.MouseEvent evt) {
-                    button.setBackground(color.brighter());
-                }
-                public void mouseExited(java.awt.event.MouseEvent evt) {
-                    button.setBackground(color.darker());
-                }
-            });
-            return button;
+        private void addButtons() {
+            JButton welcomeButton = new JButton("Welcome to Admin Page");
+            welcomeButton.setBackground(Color.WHITE);
+            welcomeButton.setForeground(Color.BLACK);
+            welcomeButton.setBounds(150, 20, 250, 30);
+            add(welcomeButton);
         }
 
         @Override
@@ -96,23 +119,46 @@ public class AdminDashboard extends JFrame {
     }
 
     private static void openCustomerDataWindow() {
-        JFrame frame2 = new JFrame("Customer Details");
-        frame2.setSize(500, 400);
-        frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        JFrame frame2 = new JFrame();
+        frame2.setSize(800, 400);
+        frame2.setTitle("Customer Details");
         frame2.setLayout(new BorderLayout());
 
+        // Create the menu bar and bottom buttons
+        frame2.setJMenuBar(createMenuBar()); // Set the same menu bar
+        frame2.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+
+        // Create the table with customer data
         String[][] data = {
-                {"Moksh", "87685422", "5224", "Chennai"},
-                {"Jolie", "4742525", "9865", "Amsterdam"},
+            {"Moksh Rana", "moksh45rana@gmail.com", "5221", "Chennai","Bangalore"},
+            {"Jolie Fernandes", "Jolie@gmail.com", "5222", "Bengaluru","Abu Dhabi"},
+            {"Aarav Gupta","AaravGupta@gmail.com","5223","Raipur","Ahemdabad"},
+            {"Sneha Chauhan","Sneha@gmail.com","5224","Udaipur","Mysore"},
+            {"Rohan Rao","Rao@gmail.com","5225","Surat","Patna"},
+            {"Vikram Joshi","VikranJos@gmail.com","5226","Patna","Delhi"},
+            {"Karan Mehta","Mehtavik@gmail.com","5227","Lucknow","Jammu"},
+            {"Mohd Hamza","mohd@gmail.com","5228","Kochi","Jaipur"},
+            {"Meera Choudhary","meeraj@gmail.com","5229","Guwahati","Vadodara"},
+            {"Ramkrishna C","ramak@gmail.com","5230","Hyderabad","Chennai"}
+             
+            // Add more data as needed
         };
-        String[] columnNames = {"CustomerName", "ContactInfo", "BookingID", "FlightDestination"};
+
+        String[] columnNames = {"Customer Name", "Contact Info", "Booking ID", "Flight Station","Flight Destination"};
+
         JTable table = new JTable(data, columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
-        frame2.add(scrollPane, BorderLayout.CENTER);
+
+        // Center the table in the frame
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
+        frame2.add(centerPanel, BorderLayout.CENTER);
 
         frame2.setVisible(true);
+        frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
+    // New class for editing flight information
     static class EditFlightInfoWindow {
         JFrame frame;
         JTextField flightNameField, arrivalTimeField, departureTimeField;
@@ -120,74 +166,101 @@ public class AdminDashboard extends JFrame {
 
         EditFlightInfoWindow() {
             frame = new JFrame("Edit Flight Info");
-            frame.setSize(450, 300);
-            frame.setLayout(new GridLayout(4, 2, 10, 10));
+            frame.setSize(800, 300);
+            frame.setLayout(new BorderLayout());
 
-            frame.add(new JLabel("Flight Name:"));
+            // Create the menu bar and bottom buttons
+            frame.setJMenuBar(createMenuBar()); // Set the same menu bar
+            frame.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+
+            JPanel inputPanel = new JPanel(new GridLayout(4, 2));
+            frame.add(inputPanel, BorderLayout.CENTER);
+
+            inputPanel.add(new JLabel("Flight Name:"));
             flightNameField = new JTextField();
-            frame.add(flightNameField);
+            inputPanel.add(flightNameField);
 
-            frame.add(new JLabel("Arrival Time:"));
+            inputPanel.add(new JLabel("Arrival Time:"));
             arrivalTimeField = new JTextField();
-            frame.add(arrivalTimeField);
+            inputPanel.add(arrivalTimeField);
 
-            frame.add(new JLabel("Departure Time:"));
+            inputPanel.add(new JLabel("Departure Time:"));
             departureTimeField = new JTextField();
-            frame.add(departureTimeField);
+            inputPanel.add(departureTimeField);
 
             saveButton = new JButton("Save Changes");
-            saveButton.setBackground(new Color(60, 179, 113));
-            saveButton.setForeground(Color.WHITE);
-            saveButton.setFont(new Font("Arial", Font.BOLD, 14));
-            saveButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
             saveButton.addActionListener(new SaveButtonListener());
-            frame.add(saveButton);
+            inputPanel.add(saveButton);
+
+            // Create a close button
+            JButton closeButton = new JButton("Close");
+            closeButton.setBackground(Color.RED);
+            closeButton.setForeground(Color.WHITE);
+            closeButton.addActionListener(e -> frame.dispose());
+            inputPanel.add(closeButton);
 
             frame.setVisible(true);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
 
+        // Listener for the save button
         static class SaveButtonListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Flight Information Saved!");
+                // Handle save action
+                // Implement your saving logic here
+                System.out.println("Flight information saved.");
             }
         }
     }
 
+    // New class for displaying flight information
     static class NewWindow {
-        JFrame frames;
-        JButton closeButton;
+        JFrame frames = new JFrame();
 
         NewWindow() {
-            frames = new JFrame("Flights Info");
-            frames.setSize(500, 400);
+            frames.setSize(800, 400);
+            frames.setTitle("Flights Info");
             frames.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frames.setLayout(new BorderLayout());
 
+            // Create the menu bar and bottom buttons
+            frames.setJMenuBar(createMenuBar()); // Set the same menu bar
+            frames.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+
+            // Create flight data
             String[][] data = {
-                    {"1E345", "AirIndia", "13:00", "14:15", "Chennai", "28"},
-                    {"1E346", "IndiGo", "14:00", "15:15", "Lucknow", "38"},
-                    {"1E347", "SpiceJet", "15:00", "16:15", "Delhi", "8"},
-                    {"1E348", "Vistara", "16:00", "17:15", "Mumbai", "2"},
-                    {"1E349", "GoAir", "17:00", "18:15", "Udaipur", "45"},
+                {"1E345", "AirIndia", "13:00", "14:15","Bengaluru","Abu Dhabi","28"},
+                {"1E346", "IndiGo", "14:00", "15:15","Lucknow","Jammu", "38"},
+                {"1E347", "SpiceJet", "15:00", "16:15","Raipur","Ahemdabad","8"},
+                {"1E348", "Vistara", "16:00", "17:15","Udaipur","Mysore", "2"},
+                {"1E349", "GoAir", "17:00", "18:15","Surat","Patna","45"},
+                {"1E345", "AirIndia", "18:00", "20:15","Patna","Delhi","28"},
+                {"1E346", "IndiGo", "2:00", "4:15","Lucknow","Jammu", "38"},
+                {"1E347", "SpiceJet", "5:00", "6:15","Kochi","Jaipur","8"},
+                {"1E348", "Vistara", "6:00", "7:15","Guwahati","Vadodara", "2"},
+                {"1E349", "GoAir", "1:00", "3:15","Hyderabad","Chennai","45"}
+               
             };
+
             String[] columnNames = {
-                    "Flight Number", "Flight Name", "Arrival Time", "Departure Time", "Destination", "Available Seats"
-            };
+                "Flight Number", "Flight Name", "Arrival Time", "Departure Time","Start","Destination", "Available Seats"};
+
+            // Create the JTable
             JTable table = new JTable(data, columnNames);
+
+            // Create a JScrollPane and add the table to it
             JScrollPane scrollPane = new JScrollPane(table);
             frames.add(scrollPane, BorderLayout.CENTER);
 
-            closeButton = new JButton("Close");
-            closeButton.setBackground(new Color(139, 0, 0));
-            closeButton.setForeground(Color.WHITE);
-            closeButton.setFont(new Font("Arial", Font.BOLD, 14));
-            closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            closeButton.addActionListener(e -> frames.dispose());
-            frames.add(closeButton, BorderLayout.SOUTH);
-
-            frames.setVisible(true);
-        }
-    }
-}
+                       // Make the frame visible
+                       frames.setVisible(true);
+                   }
+               }
+           
+               @Override
+               public void actionPerformed(ActionEvent e) {
+                   // This method is not used in this implementation
+                   throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
+               }
+           }
