@@ -1,3 +1,4 @@
+package com.airline.swingui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -263,4 +264,9 @@ public class AdminDashboard implements ActionListener {
                    // This method is not used in this implementation
                    throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
                }
+
+            public void setVisible(boolean b) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
+            }
            }

@@ -1,0 +1,33 @@
+server:
+  port: 8080  # Specify the port your application will run on
+
+spring:
+  application:
+    name: airline-ticket-app  # Give your application a name
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/airlineDB  # MongoDB connection URI
+      database: airlineDB  # MongoDB database name
+
+  jpa:  # Only include this section if you're using Spring Data JPA along with MongoDB
+    hibernate:
+      ddl-auto: update
+    show-sql: true  # Shows SQL in the console, useful for debugging
+
+  security:
+    user:
+      name: admin  # Default username for in-memory authentication
+      password: admin123  # Default password (change for production use)
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG  # Enable more detailed logs for web requests
+    com.airline: DEBUG  # Enable debug logging for your specific package
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  # Exposes all Spring Actuator endpoints

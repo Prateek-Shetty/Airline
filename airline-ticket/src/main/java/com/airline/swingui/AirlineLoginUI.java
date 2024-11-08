@@ -1,4 +1,7 @@
+package com.airline.swingui;
+
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,18 +14,18 @@ public class AirlineLoginUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(null);
-        
+
         // Disable maximizing the window
         setResizable(false);
 
-        // Load images (using getClass().getResource() for classpath access)
-        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/assets/airplane_background.jpg"));
-        ImageIcon userIcon = new ImageIcon(getClass().getResource("/assets/user_icon.png"));
-        ImageIcon lockIcon = new ImageIcon(getClass().getResource("/assets/lock_icon.png"));
-        ImageIcon instagramIcon = new ImageIcon(getClass().getResource("/assets/instagram_icon.png"));
-        ImageIcon facebookIcon = new ImageIcon(getClass().getResource("/assets/facebook_icon.png"));
-        ImageIcon twitterIcon = new ImageIcon(getClass().getResource("/assets/twitter_icon.png"));
-        ImageIcon logoIcon = new ImageIcon(getClass().getResource("/assets/airline_logo.png"));
+        // Corrected image loading paths
+        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/images/airplane_background.jpg"));
+        ImageIcon userIcon = new ImageIcon(getClass().getResource("/images/user_icon.png"));
+        ImageIcon lockIcon = new ImageIcon(getClass().getResource("/images/lock_icon.png"));
+        ImageIcon instagramIcon = new ImageIcon(getClass().getResource("/images/instagram_icon.png"));
+        ImageIcon facebookIcon = new ImageIcon(getClass().getResource("/images/facebook_icon.png"));
+        ImageIcon twitterIcon = new ImageIcon(getClass().getResource("/images/twitter_icon.png"));
+        ImageIcon logoIcon = new ImageIcon(getClass().getResource("/images/airline_logo.png"));
 
         // Background image: airplane or cloud-themed
         JPanel backgroundPanel = new JPanel() {
@@ -118,7 +121,7 @@ public class AirlineLoginUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String email = userField.getText().trim();
                 String password = new String(passField.getPassword());
-        
+
                 // Check credentials for admin login
                 if (email.equals("admin@gmail.com") && password.equals("admin123")) {
                     AdminDashboard adminDashboard = new AdminDashboard();
@@ -130,7 +133,6 @@ public class AirlineLoginUI extends JFrame {
                 dispose(); // Close the current login window
             }
         });
-        
 
         mainPanel.add(loginButton);
 
@@ -164,7 +166,8 @@ public class AirlineLoginUI extends JFrame {
         mainPanel.add(twitterLabel);
 
         // Footer (terms, policies)
-        JLabel footer = new JLabel("<html><center><br>By logging in, you agree to our<br>Terms and Privacy Policy.</center></html>");
+        JLabel footer = new JLabel(
+                "<html><center><br>By logging in, you agree to our<br>Terms and Privacy Policy.</center></html>");
         footer.setBounds(70, 600, 260, 40);
         footer.setForeground(Color.WHITE);
         footer.setFont(new Font("Arial", Font.PLAIN, 12));
