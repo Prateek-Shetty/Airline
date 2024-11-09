@@ -46,7 +46,7 @@ public class FlightBookingUI extends JFrame {
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        //test
+        //test1
         // Set up background image
         JLabel backgroundLabel = new JLabel() {
             @Override
