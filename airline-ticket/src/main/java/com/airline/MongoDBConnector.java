@@ -11,7 +11,7 @@ public class MongoDBConnector {
     private static MongoClient mongoClient;
     private static MongoDatabase database;
 
-    // Connect to MongoDB
+    // Connect to MongoDB trial
     public static void connect() {
         // Replace with your MongoDB URI if using MongoDB Atlas or a remote database
         mongoClient = MongoClients.create("mongodb://localhost:27017");// Localhost default
