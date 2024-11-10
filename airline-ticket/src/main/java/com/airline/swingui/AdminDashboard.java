@@ -108,7 +108,7 @@ public class AdminDashboard implements ActionListener {
         private Image backgroundImage;
 
         public BackgroundPanel() {
-            backgroundImage = new ImageIcon("C:\\Users\\hp\\Documents\\GitHub\\Airline\\Airline\\src\\assets\\image.png").getImage();
+            backgroundImage = new ImageIcon("/images/Flight-into-space.jpg").getImage();
             setLayout(null);
             addButtons();
         }

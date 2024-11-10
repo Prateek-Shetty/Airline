@@ -9,4 +9,9 @@ public class JDatePickerImpl {
         throw new UnsupportedOperationException("Unimplemented method 'getModel'");
     }
 
+    public Object getJFormattedTextField() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getJFormattedTextField'");
+    }
+
 }
