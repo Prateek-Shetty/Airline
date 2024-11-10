@@ -95,7 +95,7 @@ public class AdminDashboard extends JFrame {
         customerFrame.setSize(600, 400);
         customerFrame.setLayout(new BorderLayout());
 
-        List<String[]> customerData = fetchCustomerDataFromMongo();
+        List<String[]> customerData = fetchCustomerDataFromFile("user.txt");
 
         String[] columnNames = {"Customer Name", "Contact Info"};
         JTable table = new JTable(customerData.toArray(new String[0][]), columnNames);
@@ -106,10 +106,20 @@ public class AdminDashboard extends JFrame {
         customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    private static List<String[]> fetchCustomerDataFromMongo() {
+    private static List<String[]> fetchCustomerDataFromFile(String filePath) {
         List<String[]> data = new ArrayList<>();
-        data.add(new String[] {"John Doe", "john.doe@example.com"});
-        data.add(new String[] {"Jane Smith", "jane.smith@example.com"});
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Assuming each line contains "Name, Email" format
+                String[] user = line.split(", ");
+                if (user.length == 2) {
+                    data.add(user);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return data;
     }
 

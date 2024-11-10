@@ -66,9 +66,9 @@ public class FlightBookingUI extends JFrame {
         JPanel bookingPanel = createBookingPanel();
         tabbedPane.addTab("Book Flight", bookingPanel);
 
-        // Confirmation Tab
-        JPanel confirmationPanel = createConfirmationPanel();
-        tabbedPane.addTab("Booking Confirmation", confirmationPanel);
+        // // Confirmation Tab
+        // JPanel confirmationPanel = createConfirmationPanel();
+        // tabbedPane.addTab("Booking Confirmation", confirmationPanel);
 
         // Add Tabbed Pane to Frame
         contentPane.add(tabbedPane);
