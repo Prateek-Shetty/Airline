@@ -10,7 +10,16 @@ import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+
 
 public class FlightBookingUI extends JFrame {
     private JTabbedPane tabbedPane;
@@ -181,29 +190,90 @@ public class FlightBookingUI extends JFrame {
 
     private List<Flight> fetchFlightsFromBackend(String departure, String arrival, String date) {
         List<Flight> flights = new ArrayList<>();
-        flights.add(new Flight("FL123", departure, arrival, date, "09:00 AM", "$200"));
-        flights.add(new Flight("FL456", departure, arrival, date, "02:00 PM", "$250"));
-        flights.add(new Flight("FL789", departure, arrival, date, "07:00 PM", "$300"));
+        
+        // List of possible times and prices to generate dynamic flight data
+        String[] times = {"08:00 AM", "09:00 AM", "10:00 AM", "12:00 PM", "02:00 PM", "03:00 PM", "06:00 PM", "07:00 PM", "09:00 PM"};
+        String[] prices = {"$200", "$250", "$300", "$350", "$400", "$450", "$500"};
+        Random random = new Random();
+    
+        // Generate random flights based on the provided departure, arrival, and date
+        for (int i = 0; i < 10; i++) {  // Generate 10 random flights
+            String time = times[random.nextInt(times.length)];
+            String price = prices[random.nextInt(prices.length)];
+    
+            // Randomize the flight number prefix (between 1000 and 9999)
+            int flightNumberPrefix = 1000 + random.nextInt(9000);  // Random number between 1000 and 9999
+            String flightNumber = "FL" + flightNumberPrefix;
+            
+            // Create and add the flight to the list
+            flights.add(new Flight(flightNumber, departure, arrival, date, time, price));
+        }
+        
         return flights;
     }
+    
+
+
+    private static Set<String> bookedFlights = new HashSet<>();
 
     private void bookFlight() {
         int selectedRow = flightsTable.getSelectedRow();
         if (selectedRow != -1) {
+            // Get selected flight details from the table
             String flightNumber = flightsModel.getValueAt(selectedRow, 0).toString();
             String departure = flightsModel.getValueAt(selectedRow, 1).toString();
             String arrival = flightsModel.getValueAt(selectedRow, 2).toString();
             String date = flightsModel.getValueAt(selectedRow, 3).toString();
             String time = flightsModel.getValueAt(selectedRow, 4).toString();
             String price = flightsModel.getValueAt(selectedRow, 5).toString();
-
-            String confirmationDetails = String.format("Flight Number: %s\nDeparture: %s\nArrival: %s\nDate: %s\nTime: %s\nPrice: %s", flightNumber, departure, arrival, date, time, price);
-            new AirlineBookingConfirmation(confirmationDetails);
-            dispose();
+    
+            // Format confirmation details
+            String confirmationDetails = String.format(
+                "Flight Number: %s\nDeparture: %s\nArrival: %s\nDate: %s\nTime: %s\nPrice: %s",
+                flightNumber, departure, arrival, date, time, price
+            );
+    
+            // Save the details to the booking_confirmation.txt (append mode)
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("booking_confirmation.txt", true))) {
+                writer.write("Flight Number: " + flightNumber);
+                writer.newLine();
+                writer.write("Departure: " + departure);
+                writer.newLine();
+                writer.write("Arrival: " + arrival);
+                writer.newLine();
+                writer.write("Date: " + date);
+                writer.newLine();
+                writer.write("Time: " + time);
+                writer.newLine();
+                writer.write("Price: " + price);
+                writer.newLine();
+                writer.newLine(); // Blank line to separate entries
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "An error occurred while saving the booking.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+    
+            // Save the details to current_booking.txt (overwrite mode)
+            try (BufferedWriter currentWriter = new BufferedWriter(new FileWriter("current_booking.txt"))) {
+                currentWriter.write(confirmationDetails);  // Overwrite with the latest booking
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "An error occurred while saving the current booking.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+    
+            // Display the confirmation window with the booking details
+            AirlineBookingConfirmation confirmationWindow = new AirlineBookingConfirmation(confirmationDetails);
+            confirmationWindow.setVisible(true);  // Ensure the window is visible
+    
+            dispose();  // Close the current window
         } else {
+            // Show a warning if no flight is selected
             JOptionPane.showMessageDialog(this, "Please select a flight to book.", "No Flight Selected", JOptionPane.WARNING_MESSAGE);
         }
     }
+    
+
+    
 
     private JButton createRoundedButton(String text) {
         JButton button = new JButton(text);

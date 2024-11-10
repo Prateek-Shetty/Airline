@@ -1,281 +1,155 @@
 package com.airline.swingui;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
-public class AdminDashboard implements ActionListener {
-    AdminDashboard(){
-        JFrame frame = new JFrame();
-        frame.setSize(600, 600);
-        frame.setDefaultCloseOperation(3);
-        frame.add(new BackgroundPanel());
-        frame.setJMenuBar(createMenuBar());
-        frame.add(createBottomMenuBar(), "South");
-        frame.setVisible(true);
- }
+public class AdminDashboard extends JFrame {
+
+    public AdminDashboard() {
+        // Set up the main frame properties
+        setTitle("Skyfall Admin Dashboard");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Add the main panel to the frame
+        add(createMainPanel(), BorderLayout.CENTER);
+        setLocationRelativeTo(null);  // Center the window
+    }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(AdminDashboard::createAndShowGUI);
+        SwingUtilities.invokeLater(() -> {
+            AdminDashboard dashboard = new AdminDashboard();
+            dashboard.setVisible(true);  // Show the admin dashboard window
+        });
     }
 
-    private static void createAndShowGUI() {
-        JFrame frame = new JFrame();
-        frame.setSize(600, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new BackgroundPanel());
-        frame.setJMenuBar(createMenuBar()); // Set the menu bar
-        frame.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
-        frame.setVisible(true);
+    private static JPanel createMainPanel() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        JButton editUserDataButton = new JButton("Edit Existing User Data");
+        JButton viewCustomerInfoButton = new JButton("View Customer Info");
+        JButton viewFlightsButton = new JButton("View Flights");
+
+        editUserDataButton.setFont(new Font("Arial", Font.BOLD, 14));
+        viewCustomerInfoButton.setFont(new Font("Arial", Font.BOLD, 14));
+        viewFlightsButton.setFont(new Font("Arial", Font.BOLD, 14));
+
+        editUserDataButton.addActionListener(e -> openEditUserDataWindow());
+        viewCustomerInfoButton.addActionListener(e -> openCustomerDataWindow());
+        viewFlightsButton.addActionListener(e -> new ViewFlightsWindow());
+
+        mainPanel.add(editUserDataButton);
+        mainPanel.add(viewCustomerInfoButton);
+        mainPanel.add(viewFlightsButton);
+
+        return mainPanel;
     }
 
-    private static JMenuBar createMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setBackground(Color.ORANGE);
-        menuBar.setPreferredSize(new Dimension(600, 40));
+    private static void openEditUserDataWindow() {
+        JFrame editFrame = new JFrame("Edit User Data");
+        editFrame.setSize(600, 400);
+        editFrame.setLayout(new BorderLayout());
 
-        JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.X_AXIS));
-        menuPanel.setBackground(Color.ORANGE);
+        List<String[]> userData = fetchUserDataFromFile("booking_confirmation.txt");
+        String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
+        JTable table = new JTable(userData.toArray(new String[0][]), columnNames);
 
-        JLabel airlineLabel = new JLabel("Indian Airlines @1953");
-        airlineLabel.setForeground(Color.black);
-        airlineLabel.setFont(new Font("Arial", Font.BOLD, 8));
-
-        menuPanel.add(airlineLabel);
-        menuPanel.add(Box.createHorizontalGlue());
-
-        JMenuItem customerDataMenuItem = new JMenuItem("Customer Data");
-        JMenuItem manageMenuItem = new JMenuItem("Manage");
-        JMenuItem flightsMenuItem = new JMenuItem("Flights Info");
-
-        // Set background colors, remove borders, and set opaque for menu items
-        customizeMenuItem(customerDataMenuItem);
-        customizeMenuItem(manageMenuItem);
-        customizeMenuItem(flightsMenuItem);
-
-        customerDataMenuItem.addActionListener(e -> openCustomerDataWindow());
-        manageMenuItem.addActionListener(e -> new EditFlightInfoWindow());
-        flightsMenuItem.addActionListener(e -> new NewWindow());
-
-        menuPanel.add(customerDataMenuItem);
-        menuPanel.add(Box.createHorizontalStrut(20));
-        menuPanel.add(manageMenuItem);
-        menuPanel.add(Box.createHorizontalStrut(20));
-        menuPanel.add(flightsMenuItem);
-
-        menuBar.add(menuPanel);
-
-        return menuBar;
+        JScrollPane scrollPane = new JScrollPane(table);
+        editFrame.add(scrollPane, BorderLayout.CENTER);
+        editFrame.setVisible(true);
+        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    private static void customizeMenuItem(JMenuItem menuItem) {
-        menuItem.setBackground(Color.ORANGE);
-        menuItem.setForeground(Color.black);
-        menuItem.setFont(new Font("Arial", Font.BOLD, 14));
-        menuItem.setOpaque(true);
-        menuItem.setBorder(null); // Remove the border
-    }
-
-    private static JPanel createBottomMenuBar() {
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(2, 1));
-        bottomPanel.setBackground(Color.GREEN);
-
-        JButton bottomButton1 = new JButton("@Indian Airlines");
-        bottomButton1.setBackground(Color.GREEN);
-        bottomButton1.setForeground(Color.black);
-        bottomButton1.setBorderPainted(false);
-
-        JPanel button2Panel = new JPanel();
-        button2Panel.setLayout(new BorderLayout());
-        button2Panel.setBackground(Color.BLUE);
-
-        JButton bottomButton2 = new JButton("All rights reserved with Government of India");
-        bottomButton2.setBackground(Color.GREEN);
-        bottomButton2.setForeground(Color.black);
-        bottomButton2.setBorderPainted(false);
-
-        button2Panel.add(bottomButton2, BorderLayout.NORTH);
-
-        bottomPanel.add(bottomButton1);
-        bottomPanel.add(button2Panel);
-
-        return bottomPanel;
-    }
-
-    static class BackgroundPanel extends JPanel {
-        private Image backgroundImage;
-
-        public BackgroundPanel() {
-            backgroundImage = new ImageIcon("/images/Flight-into-space.jpg").getImage();
-            setLayout(null);
-            addButtons();
+    private static List<String[]> fetchUserDataFromFile(String filePath) {
+        List<String[]> userData = new ArrayList<>();
+    
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("Flight Number:")) {
+                    String flightNumber = line.split(": ")[1].trim();
+                    String departure = reader.readLine().split(": ")[1].trim();
+                    String arrival = reader.readLine().split(": ")[1].trim();
+                    String date = reader.readLine().split(": ")[1].trim();
+                    String time = reader.readLine().split(": ")[1].trim();
+                    String price = reader.readLine().split(": ")[1].trim();
+                    
+                    userData.add(new String[] {flightNumber, departure, arrival, date, time, price});
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        private void addButtons() {
-            JButton welcomeButton = new JButton("Welcome to Admin Page");
-            welcomeButton.setBackground(Color.WHITE);
-            welcomeButton.setForeground(Color.BLACK);
-            welcomeButton.setBounds(150, 20, 250, 30);
-            add(welcomeButton);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
-        }
+    
+        return userData;
     }
 
     private static void openCustomerDataWindow() {
-        JFrame frame2 = new JFrame();
-        frame2.setSize(800, 400);
-        frame2.setTitle("Customer Details");
-        frame2.setLayout(new BorderLayout());
+        JFrame customerFrame = new JFrame("Customer Details");
+        customerFrame.setSize(600, 400);
+        customerFrame.setLayout(new BorderLayout());
 
-        // Create the menu bar and bottom buttons
-        frame2.setJMenuBar(createMenuBar()); // Set the same menu bar
-        frame2.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+        List<String[]> customerData = fetchCustomerDataFromMongo();
 
-        // Create the table with customer data
-        String[][] data = {
-            {"Moksh Rana", "moksh45rana@gmail.com", "5221", "Chennai","Bangalore"},
-            {"Jolie Fernandes", "Jolie@gmail.com", "5222", "Bengaluru","Abu Dhabi"},
-            {"Aarav Gupta","AaravGupta@gmail.com","5223","Raipur","Ahemdabad"},
-            {"Sneha Chauhan","Sneha@gmail.com","5224","Udaipur","Mysore"},
-            {"Rohan Rao","Rao@gmail.com","5225","Surat","Patna"},
-            {"Vikram Joshi","VikranJos@gmail.com","5226","Patna","Delhi"},
-            {"Karan Mehta","Mehtavik@gmail.com","5227","Lucknow","Jammu"},
-            {"Mohd Hamza","mohd@gmail.com","5228","Kochi","Jaipur"},
-            {"Meera Choudhary","meeraj@gmail.com","5229","Guwahati","Vadodara"},
-            {"Ramkrishna C","ramak@gmail.com","5230","Hyderabad","Chennai"}
-             
-            // Add more data as needed
-        };
-
-        String[] columnNames = {"Customer Name", "Contact Info", "Booking ID", "Flight Station","Flight Destination"};
-
-        JTable table = new JTable(data, columnNames);
+        String[] columnNames = {"Customer Name", "Contact Info"};
+        JTable table = new JTable(customerData.toArray(new String[0][]), columnNames);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Center the table in the frame
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(scrollPane, BorderLayout.CENTER);
-        frame2.add(centerPanel, BorderLayout.CENTER);
-
-        frame2.setVisible(true);
-        frame2.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        customerFrame.add(scrollPane, BorderLayout.CENTER);
+        customerFrame.setVisible(true);
+        customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    // New class for editing flight information
-    static class EditFlightInfoWindow {
-        JFrame frame;
-        JTextField flightNameField, arrivalTimeField, departureTimeField;
-        JButton saveButton;
-
-        EditFlightInfoWindow() {
-            frame = new JFrame("Edit Flight Info");
-            frame.setSize(800, 300);
-            frame.setLayout(new BorderLayout());
-
-            // Create the menu bar and bottom buttons
-            frame.setJMenuBar(createMenuBar()); // Set the same menu bar
-            frame.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
-
-            JPanel inputPanel = new JPanel(new GridLayout(4, 2));
-            frame.add(inputPanel, BorderLayout.CENTER);
-
-            inputPanel.add(new JLabel("Flight Name:"));
-            flightNameField = new JTextField();
-            inputPanel.add(flightNameField);
-
-            inputPanel.add(new JLabel("Arrival Time:"));
-            arrivalTimeField = new JTextField();
-            inputPanel.add(arrivalTimeField);
-
-            inputPanel.add(new JLabel("Departure Time:"));
-            departureTimeField = new JTextField();
-            inputPanel.add(departureTimeField);
-
-            saveButton = new JButton("Save Changes");
-            saveButton.addActionListener(new SaveButtonListener());
-            inputPanel.add(saveButton);
-
-            // Create a close button
-            JButton closeButton = new JButton("Close");
-            closeButton.setBackground(Color.RED);
-            closeButton.setForeground(Color.WHITE);
-            closeButton.addActionListener(e -> frame.dispose());
-            inputPanel.add(closeButton);
-
-            frame.setVisible(true);
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        }
-
-        // Listener for the save button
-        static class SaveButtonListener implements ActionListener {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle save action
-                // Implement your saving logic here
-                System.out.println("Flight information saved.");
-            }
-        }
+    private static List<String[]> fetchCustomerDataFromMongo() {
+        List<String[]> data = new ArrayList<>();
+        data.add(new String[] {"John Doe", "john.doe@example.com"});
+        data.add(new String[] {"Jane Smith", "jane.smith@example.com"});
+        return data;
     }
 
-    // New class for displaying flight information
-    static class NewWindow {
-        JFrame frames = new JFrame();
+    static class ViewFlightsWindow {
+        JFrame flightFrame;
 
-        NewWindow() {
-            frames.setSize(800, 400);
-            frames.setTitle("Flights Info");
-            frames.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frames.setLayout(new BorderLayout());
+        ViewFlightsWindow() {
+            flightFrame = new JFrame("View Flights");
+            flightFrame.setSize(600, 400);
+            flightFrame.setLayout(new BorderLayout());
 
-            // Create the menu bar and bottom buttons
-            frames.setJMenuBar(createMenuBar()); // Set the same menu bar
-            frames.add(createBottomMenuBar(), BorderLayout.SOUTH); // Add the bottom menu bar
+            String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
+            List<String[]> flightData = fetchFlightDataFromFile("booking_confirmation.txt");
 
-            // Create flight data
-            String[][] data = {
-                {"1E345", "AirIndia", "13:00", "14:15","Bengaluru","Abu Dhabi","28"},
-                {"1E346", "IndiGo", "14:00", "15:15","Lucknow","Jammu", "38"},
-                {"1E347", "SpiceJet", "15:00", "16:15","Raipur","Ahemdabad","8"},
-                {"1E348", "Vistara", "16:00", "17:15","Udaipur","Mysore", "2"},
-                {"1E349", "GoAir", "17:00", "18:15","Surat","Patna","45"},
-                {"1E345", "AirIndia", "18:00", "20:15","Patna","Delhi","28"},
-                {"1E346", "IndiGo", "2:00", "4:15","Lucknow","Jammu", "38"},
-                {"1E347", "SpiceJet", "5:00", "6:15","Kochi","Jaipur","8"},
-                {"1E348", "Vistara", "6:00", "7:15","Guwahati","Vadodara", "2"},
-                {"1E349", "GoAir", "1:00", "3:15","Hyderabad","Chennai","45"}
-               
-            };
-
-            String[] columnNames = {
-                "Flight Number", "Flight Name", "Arrival Time", "Departure Time","Start","Destination", "Available Seats"};
-
-            // Create the JTable
-            JTable table = new JTable(data, columnNames);
-
-            // Create a JScrollPane and add the table to it
+            JTable table = new JTable(flightData.toArray(new String[0][]), columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
-            frames.add(scrollPane, BorderLayout.CENTER);
 
-                       // Make the frame visible
-                       frames.setVisible(true);
-                   }
-               }
-           
-               @Override
-               public void actionPerformed(ActionEvent e) {
-                   // This method is not used in this implementation
-                   throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
-               }
+            flightFrame.add(scrollPane, BorderLayout.CENTER);
+            flightFrame.setVisible(true);
+            flightFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        }
+    }
 
-            public void setVisible(boolean b) {
-                // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'setVisible'");
+    private static List<String[]> fetchFlightDataFromFile(String filePath) {
+        List<String[]> flightData = new ArrayList<>();
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] columns = line.split("\t");
+                if (columns.length >= 6) { 
+                    flightData.add(new String[] {
+                        columns[0], columns[1], columns[2], columns[3], columns[4], columns[5]
+                    });
+                }
             }
-           }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return flightData;
+    }
+}

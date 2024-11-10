@@ -1,12 +1,15 @@
 package com.airline.swingui;
-import javax.swing.*;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.*;
-//import java.text.SimpleDateFormat;
-//import java.util.Date;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class AirlineBookingConfirmation extends JFrame {
 
@@ -39,8 +42,8 @@ public class AirlineBookingConfirmation extends JFrame {
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        // Boarding Pass with dynamic details
-        JPanel boardingPass = createBoardingPass(details);
+        // Boarding Pass with dynamic details from the file
+        JPanel boardingPass = createBoardingPassFromFile();
         mainPanel.add(boardingPass, BorderLayout.CENTER);
 
         // Footer
@@ -74,9 +77,12 @@ public class AirlineBookingConfirmation extends JFrame {
         mainPanel.add(footerPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
+
+        // Save the details to both the admin file and the current booking file
+        saveBookingDetails(details);
     }
 
-    private JPanel createBoardingPass(String details) {
+    private JPanel createBoardingPassFromFile() {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -115,10 +121,49 @@ public class AirlineBookingConfirmation extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
 
-        // Passenger details - use dynamic details
+        // Read data from file and display it
+        String details = readBookingDetailsFromFile();
         addLabelAndValue(panel, gbc, "Booking Details:", details, 0);
 
         return panel;
+    }
+
+    private String readBookingDetailsFromFile() {
+        StringBuilder details = new StringBuilder();
+        try {
+            // Read from the current_booking.txt file (latest booking)
+            File file = new File("current_booking.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                details.append(line).append("\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            details.append("Error loading booking details.");
+        }
+        return details.toString();
+    }
+
+    private void saveBookingDetails(String details) {
+        // Save the booking details to booking_confirmation.txt (append mode)
+        try {
+            FileWriter adminFileWriter = new FileWriter("booking_confirmation.txt", true);
+            adminFileWriter.write(details + "\n\n");
+            adminFileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Save the booking details to current_booking.txt (overwrite mode)
+        try {
+            FileWriter currentFileWriter = new FileWriter("current_booking.txt");
+            currentFileWriter.write(details);
+            currentFileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addLabelAndValue(JPanel panel, GridBagConstraints gbc, String labelText, String valueText, int row) {
@@ -134,7 +179,7 @@ public class AirlineBookingConfirmation extends JFrame {
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.EAST;
 
-        JLabel value = new JLabel(valueText);
+        JLabel value = new JLabel("<html>" + valueText.replace("\n", "<br>") + "</html>");
         value.setFont(new Font("SansSerif", Font.PLAIN, 14));
         value.setForeground(Color.DARK_GRAY);
         panel.add(value, gbc);

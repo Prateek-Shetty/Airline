@@ -14,29 +14,29 @@ public class MongoDBConnector {
     // Connect to MongoDB trial
     public static void connect() {
         // Replace with your MongoDB URI if using MongoDB Atlas or a remote database
-        mongoClient = MongoClients.create("mongodb://localhost:27017");// Localhost default
+        mongoClient = MongoClients.create("mongodb://localhost:27017/airlineDB");// Localhost default
         database = mongoClient.getDatabase("airlineDB"); // Replace with your database name
         System.out.println("Connected to MongoDB!");
     }
 
     // Example method to insert a document into a collection
-    public static void insertFlightData() {
-        MongoCollection<Document> collection = database.getCollection("flights"); // Replace with your collection name
+    // public static void insertFlightData() {
+    //     MongoCollection<Document> collection = database.getCollection("flights"); // Replace with your collection name
 
-        // Create a new document
-        Document doc = new Document("flightNumber", "AI202")
-                            .append("origin", "Delhi")
-                            .append("destination", "New York")
-                            .append("departureTime", "2024-12-01T08:00:00");
+    //     // Create a new document
+    //     Document doc = new Document("flightNumber", "AI202")
+    //                         .append("origin", "Delhi")
+    //                         .append("destination", "New York")
+    //                         .append("departureTime", "2024-12-01T08:00:00");
 
-        // Insert the document into the collection
-        collection.insertOne(doc);
-        System.out.println("Flight data inserted!");
-    }
+    //     // Insert the document into the collection
+    //     collection.insertOne(doc);
+    //     System.out.println("Flight data inserted!");
+    // }
 
     // Example method to retrieve documents from the collection
     public static void fetchFlightData() {
-        MongoCollection<Document> collection = database.getCollection("flights"); // Replace with your collection name
+        MongoCollection<Document> collection = database.getCollection("users"); // Replace with your collection name
 
         // Retrieve all documents from the collection
         for (Document doc : collection.find()) {
