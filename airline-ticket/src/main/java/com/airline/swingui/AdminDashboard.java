@@ -1,10 +1,38 @@
 package com.airline.swingui;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 public class AdminDashboard implements ActionListener {
+    public AdminDashboard(){
+        JFrame frame = new JFrame();
+        frame.setSize(600, 600);
+        frame.setDefaultCloseOperation(3);
+        frame.add(new BackgroundPanel());
+        frame.setJMenuBar(createMenuBar());
+        frame.add(createBottomMenuBar(), "South");
+        frame.setVisible(true);
+     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AdminDashboard::createAndShowGUI);
