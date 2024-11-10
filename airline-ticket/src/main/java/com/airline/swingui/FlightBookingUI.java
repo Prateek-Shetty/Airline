@@ -1,60 +1,28 @@
 package com.airline.swingui;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.OverlayLayout;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-
+import java.awt.*;
+//import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class FlightBookingUI extends JFrame {
     private JTabbedPane tabbedPane;
     private DefaultTableModel flightsModel;
     private JTable flightsTable;
-    private JComboBox<String> departureField;
-    private JComboBox<String> arrivalField;
+    private JTextField departureField;
+    private JTextField arrivalField;
     private JTextArea confirmationArea;
     private JButton datePickerButton;
     private JComboBox<String> timeComboBox;
-    private JLabel dateLabel;
     private Calendar selectedDate = Calendar.getInstance();
-
-    private final Map<String, double[]> airportCoordinates;
 
     public FlightBookingUI() {
         setTitle("Flight Booking System");
         setSize(1200, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
-        // Initialize airport coordinates for distance calculation
-        airportCoordinates = initAirportCoordinates();
 
         // Set up background image
         JLabel backgroundLabel = new JLabel() {
@@ -63,107 +31,108 @@ public class FlightBookingUI extends JFrame {
                 super.paintComponent(g);
                 ImageIcon backgroundIcon = loadImage("/assets/bookingbg.jpg");
                 if (backgroundIcon != null) {
-                    Image bgImage = backgroundIcon.getImage().getScaledInstance(getWidth(), getHeight(),
-                            Image.SCALE_SMOOTH);
+                    Image bgImage = backgroundIcon.getImage().getScaledInstance(getWidth(), getHeight(), Image.SCALE_SMOOTH);
                     g.drawImage(bgImage, 0, 0, getWidth(), getHeight(), this);
                 }
             }
         };
         backgroundLabel.setLayout(new BorderLayout());
 
+        // Main content
         JPanel contentPane = new JPanel();
         contentPane.setLayout(new OverlayLayout(contentPane));
         contentPane.add(backgroundLabel);
 
         tabbedPane = new JTabbedPane();
-        tabbedPane.setOpaque(false);
-        tabbedPane.setBackground(new Color(255, 255, 255, 200));
+        tabbedPane.setOpaque(false); // Ensure the tabbed pane is transparent
+        tabbedPane.setBackground(new Color(255, 255, 255, 200)); // Slight transparency to content
         tabbedPane.setFont(new Font("Arial", Font.BOLD, 18));
         tabbedPane.setForeground(new Color(50, 50, 50));
 
+        // Booking Tab
         JPanel bookingPanel = createBookingPanel();
         tabbedPane.addTab("Book Flight", bookingPanel);
 
+        // Confirmation Tab
         JPanel confirmationPanel = createConfirmationPanel();
         tabbedPane.addTab("Booking Confirmation", confirmationPanel);
 
+        // Add Tabbed Pane to Frame
         contentPane.add(tabbedPane);
         setContentPane(contentPane);
         setVisible(true);
     }
 
-    private Map<String, double[]> initAirportCoordinates() {
-        Map<String, double[]> coordinates = new HashMap<>();
-        coordinates.put("Bangalore Kempegowda (IN)", new double[]{12.9716, 77.5946});
-        coordinates.put("Delhi (IN)", new double[]{28.7041, 77.1025});
-        coordinates.put("Bangkok (TH)", new double[]{13.7563, 100.5018});
-        coordinates.put("London Heathrow (GB)", new double[]{51.4700, -0.4543});
-        coordinates.put("New York JFK (US)", new double[]{40.6413, -73.7781});
-        coordinates.put("Paris Charles de Gaulle (FR)", new double[]{49.0097, 2.5479});
-        // Add other airports as needed
-        return coordinates;
+    private ImageIcon loadImage(String path) {
+        try {
+            return new ImageIcon(getClass().getResource(path));
+        } catch (Exception e) {
+            System.err.println("Image not found: " + e.getMessage());
+            return null;
+        }
     }
 
     private JPanel createBookingPanel() {
-        JPanel bookingPanel = new JPanel(new GridBagLayout());
-        bookingPanel.setOpaque(false);
+        JPanel bookingPanel = new JPanel();
+        bookingPanel.setLayout(new GridBagLayout());
+        bookingPanel.setOpaque(false); // Transparent background for this panel
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // Departure Field
         JLabel departureLabel = new JLabel("Departure City:");
-        String[] airports = airportCoordinates.keySet().toArray(new String[0]);
-        departureField = new JComboBox<>(airports);
-        departureField.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        departureField = new JTextField(15);
+        gbc.gridx = 0; gbc.gridy = 0;
         bookingPanel.add(departureLabel, gbc);
-        gbc.gridx = 1;
+        gbc.gridx = 1; gbc.gridy = 0;
         bookingPanel.add(departureField, gbc);
 
+        // Arrival Field
         JLabel arrivalLabel = new JLabel("Arrival City:");
-        arrivalField = new JComboBox<>(airports);
-        arrivalField.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 1;
+        arrivalField = new JTextField(15);
+        gbc.gridx = 0; gbc.gridy = 1;
         bookingPanel.add(arrivalLabel, gbc);
-        gbc.gridx = 1;
+        gbc.gridx = 1; gbc.gridy = 1;
         bookingPanel.add(arrivalField, gbc);
 
-        dateLabel = new JLabel("Select Date:");
+        // Date Picker
+        JLabel dateLabel = new JLabel("Select Date:");
         datePickerButton = createRoundedButton("Pick Date");
-        datePickerButton.addActionListener(e -> showDateTimePicker());
-        gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridx = 0; gbc.gridy = 2;
         bookingPanel.add(dateLabel, gbc);
-        gbc.gridx = 1;
+        gbc.gridx = 1; gbc.gridy = 2;
         bookingPanel.add(datePickerButton, gbc);
+        datePickerButton.addActionListener(e -> showDatePicker());
 
+        // Time ComboBox
         JLabel timeLabel = new JLabel("Select Time:");
         timeComboBox = new JComboBox<>(new String[]{"Select Time", "09:00 AM", "12:00 PM", "03:00 PM"});
-        gbc.gridx = 0;
-        gbc.gridy = 3;
+        customizeComboBox(timeComboBox);
+        gbc.gridx = 0; gbc.gridy = 3;
         bookingPanel.add(timeLabel, gbc);
-        gbc.gridx = 1;
+        gbc.gridx = 1; gbc.gridy = 3;
         bookingPanel.add(timeComboBox, gbc);
 
+        // Search Flights Button
         JButton searchFlightsButton = createRoundedButton("Search Flights");
         searchFlightsButton.addActionListener(e -> searchFlights());
-        gbc.gridx = 1;
-        gbc.gridy = 4;
+        gbc.gridx = 1; gbc.gridy = 4;
         bookingPanel.add(searchFlightsButton, gbc);
 
+        // Flights Table
         flightsModel = new DefaultTableModel(new String[]{"Flight Number", "Departure", "Arrival", "Price"}, 0);
         flightsTable = new JTable(flightsModel);
         flightsTable.setFillsViewportHeight(true);
+        flightsTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        flightsTable.setRowHeight(30);
         JScrollPane scrollPane = new JScrollPane(flightsTable);
         scrollPane.setPreferredSize(new Dimension(800, 300));
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 2;
+        gbc.gridx = 0; gbc.gridy = 5; gbc.gridwidth = 2;
         bookingPanel.add(scrollPane, gbc);
 
+        // Book Flight Button
         JButton bookFlightButton = createRoundedButton("Book Flight");
         bookFlightButton.addActionListener(e -> bookFlight());
         gbc.gridy = 6;
@@ -174,171 +143,122 @@ public class FlightBookingUI extends JFrame {
 
     private JPanel createConfirmationPanel() {
         JPanel confirmationPanel = new JPanel(new BorderLayout());
-        confirmationPanel.setBackground(new Color(255, 255, 255, 200));
+        confirmationPanel.setBackground(new Color(255, 255, 255, 200)); // Slightly transparent
 
         confirmationArea = new JTextArea();
         confirmationArea.setFont(new Font("Arial", Font.PLAIN, 16));
         confirmationArea.setEditable(false);
+        confirmationArea.setBackground(new Color(240, 240, 240));
+
         JScrollPane scrollPane = new JScrollPane(confirmationArea);
         confirmationPanel.add(scrollPane, BorderLayout.CENTER);
 
         return confirmationPanel;
     }
 
+    private void customizeComboBox(JComboBox<String> comboBox) {
+        comboBox.setFont(new Font("Arial", Font.PLAIN, 16));
+        comboBox.setForeground(new Color(50, 50, 50));
+        comboBox.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
+        comboBox.setBackground(new Color(255, 255, 255));
+    }
+
     private JButton createRoundedButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setBackground(new Color(0, 102, 204));
+        button.setBackground(new Color(33, 150, 243));
         button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        button.setFocusPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        button.setPreferredSize(new Dimension(200, 50));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(0, 123, 255));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(33, 150, 243));
+            }
+        });
+
         return button;
     }
 
-    /**
-     * 
-     */
-    private void showDateTimePicker() {
-        // Create Date Picker Model
-        UtilDateModel model = new UtilDateModel();
-        model.setDate(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH));
-        model.setSelected(true);
-    
-        // Properties for date picker (optional customization)
-        Properties properties = new Properties();
-        properties.put("text.today", "Today");
-        properties.put("text.month", "Month");
-        properties.put("text.year", "Year");
-    
-        // Initialize date panel and date picker
-        JDatePanelImpl datePanel = new JDatePanelImpl();
-        Component datePicker = new FlightBookingUI();
-    
-        // Create Time ComboBox with predefined times
-        JComboBox<String> timeComboBox = new JComboBox<>(new String[] {
-            "09:00 AM", "12:00 PM", "03:00 PM", "06:00 PM", "09:00 PM"
-        });
-        timeComboBox.setFont(new Font("Arial", Font.PLAIN, 16));
-        timeComboBox.setForeground(new Color(50, 50, 50));
-        timeComboBox.setBackground(new Color(255, 255, 255));
-    
-        // Panel for date and time selection
-        JPanel dateTimePanel = new JPanel(new BorderLayout());
-        dateTimePanel.add(datePicker, BorderLayout.NORTH);
-        dateTimePanel.add(timeComboBox, BorderLayout.SOUTH);
-    
-        // Show the date and time picker in a dialog
-        int result = JOptionPane.showConfirmDialog(this, dateTimePanel, "Select Date and Time", JOptionPane.OK_CANCEL_OPTION);
-    
-        // Handle the selected date and time
-        if (result == JOptionPane.OK_OPTION) {
-            java.util.Date selectedDateValue = (java.util.Date) datePicker.getModel().getValue();
-            String selectedTime = (String) timeComboBox.getSelectedItem();
-    
-            // Combine the date and time selections
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(selectedDateValue);
-            
-            // Convert selected time into hours and minutes
-            String[] timeParts = selectedTime.split(" ");
-            String[] hourMinute = timeParts[0].split(":");
-            int hour = Integer.parseInt(hourMinute[0]);
-            int minute = Integer.parseInt(hourMinute[1]);
-            
-            if (timeParts[1].equals("PM") && hour < 12) {
-                hour += 12;  // Convert PM to 24-hour format
-            } else if (timeParts[1].equals("AM") && hour == 12) {
-                hour = 0;  // Midnight case
-            }
-    
-            calendar.set(Calendar.HOUR_OF_DAY, hour);
-            calendar.set(Calendar.MINUTE, minute);
-    
-            // Update the selected date and time label
-            selectedDate.setTime(calendar.getTime());
-            dateLabel.setText("Selected Date and Time: " + selectedDate.get(Calendar.YEAR) + "-"
-                    + (selectedDate.get(Calendar.MONTH) + 1) + "-" + selectedDate.get(Calendar.DAY_OF_MONTH)
-                    + " " + String.format("%02d:%02d", hour, minute));
+    private void showDatePicker() {
+        // Popup for selecting a date
+        JDialog dateDialog = new JDialog(this, "Select Date", true);
+        dateDialog.setSize(300, 300);
+        dateDialog.setLayout(new BorderLayout());
+        dateDialog.setLocationRelativeTo(this);
+
+        JPanel calendarPanel = new JPanel(new GridLayout(7, 7));
+        String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (String day : days) {
+            calendarPanel.add(new JLabel(day, SwingConstants.CENTER));
         }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        int startDay = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+
+        for (int i = 0; i < startDay; i++) {
+            calendarPanel.add(new JLabel("")); // Empty slots for days before 1st
+        }
+
+        for (int day = 1; day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH); day++) {
+            final int selectedDay = day; // Create a new final variable
+            JButton dayButton = new JButton(String.valueOf(day));
+            
+            dayButton.addActionListener(e -> {
+                selectedDate.set(Calendar.DAY_OF_MONTH, selectedDay); // Use the final variable here
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                datePickerButton.setText(dateFormat.format(selectedDate.getTime()));
+                dateDialog.dispose();
+            });
+            
+            calendarPanel.add(dayButton);
+        }
+
+        dateDialog.add(calendarPanel, BorderLayout.CENTER);
+        dateDialog.setVisible(true);
     }
-    //trial
-    
-    
 
     private void searchFlights() {
-        String departure = (String) departureField.getSelectedItem();
-        String arrival = (String) arrivalField.getSelectedItem();
-        @SuppressWarnings("unused")
-        String time = (String) timeComboBox.getSelectedItem();
-
-        String flightNumber = generateFlightNumber(departure, arrival);
-        String flightPrice = calculatePrice(departure, arrival);
-
-        flightsModel.addRow(new Object[]{flightNumber, departure, arrival, flightPrice});
-    }
-
-    private String generateFlightNumber(String departure, String arrival) {
-        return "AI" + (int) (Math.random() * 1000) + "-" + departure.substring(0, 3) + arrival.substring(0, 3);
-    }
-
-    private String calculatePrice(String departure, String arrival) {
-        int distance = calculateDistance(departure, arrival);
-        int basePrice = 300;
-        int price = basePrice + (distance / 100) * 10;
-        return "$" + price;
-    }
-
-    private int calculateDistance(String departure, String arrival) {
-        double[] departureCoords = airportCoordinates.get(departure);
-        double[] arrivalCoords = airportCoordinates.get(arrival);
-
-        if (departureCoords == null || arrivalCoords == null) {
-            return 0;
-        }
-
-        double lat1 = Math.toRadians(departureCoords[0]);
-        double lon1 = Math.toRadians(departureCoords[1]);
-        double lat2 = Math.toRadians(arrivalCoords[0]);
-        double lon2 = Math.toRadians(arrivalCoords[1]);
-
-        double dlat = lat2 - lat1;
-        double dlon = lon2 - lon1;
-
-        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        double earthRadiusKm = 6371;
-        return (int) (earthRadiusKm * c);
+        // Dummy data for flights
+        flightsModel.setRowCount(0); // Clear previous data
+        flightsModel.addRow(new Object[]{"FL123", departureField.getText(), arrivalField.getText(), "$200"});
+        flightsModel.addRow(new Object[]{"FL456", departureField.getText(), arrivalField.getText(), "$250"});
+        flightsModel.addRow(new Object[]{"FL789", departureField.getText(), arrivalField.getText(), "$300"});
     }
 
     private void bookFlight() {
         int selectedRow = flightsTable.getSelectedRow();
-
         if (selectedRow != -1) {
-            String flightNumber = (String) flightsModel.getValueAt(selectedRow, 0);
-            String departure = (String) flightsModel.getValueAt(selectedRow, 1);
-            String arrival = (String) flightsModel.getValueAt(selectedRow, 2);
-            String price = (String) flightsModel.getValueAt(selectedRow, 3);
-            String time = (String) timeComboBox.getSelectedItem();
-
-            confirmationArea.setText("Booking Confirmation:\n\nFlight Number: " + flightNumber + "\nDeparture: " +
-                    departure + "\nArrival: " + arrival + "\nPrice: " + price + "\nTime: " + time + "\nDate: " +
-                    (selectedDate.get(Calendar.MONTH) + 1) + "/" + selectedDate.get(Calendar.DAY_OF_MONTH) + "/" +
-                    selectedDate.get(Calendar.YEAR));
-            tabbedPane.setSelectedIndex(1);
+            // Gather booking information
+            String flightNumber = flightsModel.getValueAt(selectedRow, 0).toString();
+            String departure = flightsModel.getValueAt(selectedRow, 1).toString();
+            String arrival = flightsModel.getValueAt(selectedRow, 2).toString();
+            String price = flightsModel.getValueAt(selectedRow, 3).toString();
+            
+            // Format details to pass to the confirmation page
+            String confirmationDetails = "Flight Number: " + flightNumber + "\nDeparture: " + departure +
+                                         "\nArrival: " + arrival + "\nPrice: " + price;
+            
+            // Open the AirlineBookingConfirmed page
+            new AirlineBookingConfirmation(confirmationDetails); // Ensure this class displays booking details
+    
+            // Optional: Close current page if needed
+            dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Please select a flight to book.");
+            JOptionPane.showMessageDialog(this, "Please select a flight to book.", "No Flight Selected", JOptionPane.WARNING_MESSAGE);
         }
     }
-
-    private ImageIcon loadImage(String path) {
-        try {
-            return new ImageIcon(getClass().getResource(path));
-        } catch (Exception e) {
-            return null;
-        }
-    }
+    
+    
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(FlightBookingUI::new);
+        new FlightBookingUI();
     }
 }
