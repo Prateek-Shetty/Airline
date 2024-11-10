@@ -5,6 +5,15 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class AdminDashboard implements ActionListener {
+    AdminDashboard(){
+        JFrame frame = new JFrame();
+        frame.setSize(600, 600);
+        frame.setDefaultCloseOperation(3);
+        frame.add(new BackgroundPanel());
+        frame.setJMenuBar(createMenuBar());
+        frame.add(createBottomMenuBar(), "South");
+        frame.setVisible(true);
+ }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AdminDashboard::createAndShowGUI);
