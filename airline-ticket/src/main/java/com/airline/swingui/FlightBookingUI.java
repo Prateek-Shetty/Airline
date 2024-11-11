@@ -19,7 +19,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import java.util.HashMap;
 
 public class FlightBookingUI extends JFrame {
     private JTabbedPane tabbedPane;
@@ -216,61 +218,59 @@ public class FlightBookingUI extends JFrame {
 
     private static Set<String> bookedFlights = new HashSet<>();
 
-    private void bookFlight() {
-        int selectedRow = flightsTable.getSelectedRow();
-        if (selectedRow != -1) {
-            // Get selected flight details from the table
-            String flightNumber = flightsModel.getValueAt(selectedRow, 0).toString();
-            String departure = flightsModel.getValueAt(selectedRow, 1).toString();
-            String arrival = flightsModel.getValueAt(selectedRow, 2).toString();
-            String date = flightsModel.getValueAt(selectedRow, 3).toString();
-            String time = flightsModel.getValueAt(selectedRow, 4).toString();
-            String price = flightsModel.getValueAt(selectedRow, 5).toString();
-    
-            // Format confirmation details
-            String confirmationDetails = String.format(
-                "Flight Number: %s\nDeparture: %s\nArrival: %s\nDate: %s\nTime: %s\nPrice: %s",
-                flightNumber, departure, arrival, date, time, price
-            );
-    
-            // Save the details to the booking_confirmation.txt (append mode)
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("booking_confirmation.txt", true))) {
-                writer.write("Flight Number: " + flightNumber);
-                writer.newLine();
-                writer.write("Departure: " + departure);
-                writer.newLine();
-                writer.write("Arrival: " + arrival);
-                writer.newLine();
-                writer.write("Date: " + date);
-                writer.newLine();
-                writer.write("Time: " + time);
-                writer.newLine();
-                writer.write("Price: " + price);
-                writer.newLine();
-                writer.newLine(); // Blank line to separate entries
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "An error occurred while saving the booking.", "Error", JOptionPane.ERROR_MESSAGE);
+ 
+
+private void bookFlight() {
+    int selectedRow = flightsTable.getSelectedRow();
+    if (selectedRow != -1) {
+        String flightNumber = flightsModel.getValueAt(selectedRow, 0).toString();
+        String departure = flightsModel.getValueAt(selectedRow, 1).toString();
+        String arrival = flightsModel.getValueAt(selectedRow, 2).toString();
+        String date = flightsModel.getValueAt(selectedRow, 3).toString();
+        String time = flightsModel.getValueAt(selectedRow, 4).toString();
+        String price = flightsModel.getValueAt(selectedRow, 5).toString();
+
+        // Prepare data for JSON
+        HashMap<String, String> bookingDetails = new HashMap<>();
+        bookingDetails.put("Flight Number", flightNumber);
+        bookingDetails.put("Departure", departure);
+        bookingDetails.put("Arrival", arrival);
+        bookingDetails.put("Date", date);
+        bookingDetails.put("Time", time);
+        bookingDetails.put("Price", price);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+
+            // Append to booking_confirmation.json
+            File bookingFile = new File("booking_confirmation.json");
+            List<HashMap<String, String>> bookings;
+
+            if (bookingFile.exists()) {
+                bookings = new ArrayList<>(List.of(mapper.readValue(bookingFile, HashMap[].class)));
+            } else {
+                bookings = new ArrayList<>();
             }
-    
-            // Save the details to current_booking.txt (overwrite mode)
-            try (BufferedWriter currentWriter = new BufferedWriter(new FileWriter("current_booking.txt"))) {
-                currentWriter.write(confirmationDetails);  // Overwrite with the latest booking
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "An error occurred while saving the current booking.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-    
-            // Display the confirmation window with the booking details
-            AirlineBookingConfirmation confirmationWindow = new AirlineBookingConfirmation(confirmationDetails);
-            confirmationWindow.setVisible(true);  // Ensure the window is visible
-    
-            dispose();  // Close the current window
-        } else {
-            // Show a warning if no flight is selected
-            JOptionPane.showMessageDialog(this, "Please select a flight to book.", "No Flight Selected", JOptionPane.WARNING_MESSAGE);
+            bookings.add(bookingDetails);
+            writer.writeValue(bookingFile, bookings);
+
+            // Overwrite current_booking.json
+            writer.writeValue(new File("current_booking.json"), bookingDetails);
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An error occurred while saving the booking.", "Error", JOptionPane.ERROR_MESSAGE);
         }
+
+        AirlineBookingConfirmation confirmationWindow = new AirlineBookingConfirmation(bookingDetails.toString());
+        confirmationWindow.setVisible(true);
+
+        dispose();
+    } else {
+        JOptionPane.showMessageDialog(this, "Please select a flight to book.", "No Flight Selected", JOptionPane.WARNING_MESSAGE);
     }
+}
+
     
 
     

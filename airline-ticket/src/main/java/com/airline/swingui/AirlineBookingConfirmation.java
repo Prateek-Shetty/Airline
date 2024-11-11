@@ -1,15 +1,19 @@
 package com.airline.swingui;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AirlineBookingConfirmation extends JFrame {
 
@@ -42,7 +46,7 @@ public class AirlineBookingConfirmation extends JFrame {
         headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
         mainPanel.add(headerLabel, BorderLayout.NORTH);
 
-        // Boarding Pass with dynamic details from the file
+        // Boarding Pass with dynamic details from the JSON file
         JPanel boardingPass = createBoardingPassFromFile();
         mainPanel.add(boardingPass, BorderLayout.CENTER);
 
@@ -121,7 +125,7 @@ public class AirlineBookingConfirmation extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 10, 5, 10);
 
-        // Read data from file and display it
+        // Read data from JSON file and display it
         String details = readBookingDetailsFromFile();
         addLabelAndValue(panel, gbc, "Booking Details:", details, 0);
 
@@ -130,37 +134,56 @@ public class AirlineBookingConfirmation extends JFrame {
 
     private String readBookingDetailsFromFile() {
         StringBuilder details = new StringBuilder();
+        ObjectMapper mapper = new ObjectMapper();
+
         try {
-            // Read from the current_booking.txt file (latest booking)
-            File file = new File("current_booking.txt");
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                details.append(line).append("\n");
+            // Read from current_booking.json
+            File file = new File("current_booking.json");
+            if (file.exists()) {
+                Map<String, String> bookingDetails = mapper.readValue(file, Map.class);
+                for (Map.Entry<String, String> entry : bookingDetails.entrySet()) {
+                    details.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                }
+            } else {
+                details.append("No current booking found.");
             }
-            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
             details.append("Error loading booking details.");
         }
+
         return details.toString();
     }
 
     private void saveBookingDetails(String details) {
-        // Save the booking details to booking_confirmation.txt (append mode)
-        try {
-            FileWriter adminFileWriter = new FileWriter("booking_confirmation.txt", true);
-            adminFileWriter.write(details + "\n\n");
-            adminFileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ObjectMapper mapper = new ObjectMapper();
 
-        // Save the booking details to current_booking.txt (overwrite mode)
         try {
-            FileWriter currentFileWriter = new FileWriter("current_booking.txt");
-            currentFileWriter.write(details);
-            currentFileWriter.close();
+            // Convert details string to HashMap for JSON compatibility
+            HashMap<String, String> bookingDetails = new HashMap<>();
+            for (String line : details.split("\n")) {
+                String[] parts = line.split(": ");
+                if (parts.length == 2) {
+                    bookingDetails.put(parts[0], parts[1]);
+                }
+            }
+
+            // Append to booking_confirmation.json
+            File bookingFile = new File("booking_confirmation.json");
+            List<HashMap<String, String>> bookings;
+
+            if (bookingFile.exists()) {
+                bookings = new ArrayList<>(List.of(mapper.readValue(bookingFile, HashMap[].class)));
+            } else {
+                bookings = new ArrayList<>();
+            }
+            bookings.add(bookingDetails);
+
+            ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
+            writer.writeValue(bookingFile, bookings);
+
+            // Overwrite current_booking.json
+            writer.writeValue(new File("current_booking.json"), bookingDetails);
         } catch (IOException e) {
             e.printStackTrace();
         }

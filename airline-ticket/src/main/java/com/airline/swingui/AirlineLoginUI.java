@@ -1,25 +1,21 @@
 package com.airline.swingui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.io.BufferedWriter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 public class AirlineLoginUI extends JFrame {
+
+    private static final String JSON_FILE_PATH = "user.json";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public AirlineLoginUI() {
         setTitle("Airline Ticket Login");
@@ -69,7 +65,7 @@ public class AirlineLoginUI extends JFrame {
         JLabel nameLabel = new JLabel("Name:");
         nameLabel.setBounds(20, 40, 60, 25);
         mainPanel.add(nameLabel);
-        
+
         JTextField nameField = new JTextField();
         nameField.setBounds(80, 40, 200, 25);
         nameField.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -79,7 +75,7 @@ public class AirlineLoginUI extends JFrame {
         JLabel userLabel = new JLabel("Email:");
         userLabel.setBounds(20, 90, 60, 25);
         mainPanel.add(userLabel);
-        
+
         JTextField userField = new JTextField();
         userField.setBounds(80, 90, 200, 25);
         userField.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -89,7 +85,7 @@ public class AirlineLoginUI extends JFrame {
         JLabel passLabel = new JLabel("Password:");
         passLabel.setBounds(20, 140, 80, 25);
         mainPanel.add(passLabel);
-        
+
         JPasswordField passField = new JPasswordField();
         passField.setBounds(80, 140, 200, 25);
         passField.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -106,11 +102,11 @@ public class AirlineLoginUI extends JFrame {
         loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginButton.setBorder(BorderFactory.createEmptyBorder());
 
-        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+        loginButton.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
                 loginButton.setBackground(new Color(0, 123, 255));
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+            public void mouseExited(MouseEvent evt) {
                 loginButton.setBackground(new Color(33, 150, 243));
             }
         });
@@ -125,8 +121,8 @@ public class AirlineLoginUI extends JFrame {
                 AdminDashboard adminDashboard = new AdminDashboard();
                 adminDashboard.setVisible(true);
             } else {
-                // Save user data to user.txt file
-                saveUserToFile(name, email);
+                // Save user data to user.json file
+                saveUserToJsonFile(name, email);
                 FlightBookingUI flightBookingUI = new FlightBookingUI();
                 flightBookingUI.setVisible(true);
             }
@@ -143,17 +139,29 @@ public class AirlineLoginUI extends JFrame {
         backgroundPanel.add(footer);
     }
 
-    // Method to save user data to a file
-    private static void saveUserToFile(String name, String email) {
+    // Method to save user data to a JSON file
+    private static void saveUserToJsonFile(String name, String email) {
         try {
-            File file = new File("user.txt");
-            if (!file.exists()) {
-                file.createNewFile(); // Create the file if it doesn't exist
+            File file = new File(JSON_FILE_PATH);
+            ArrayNode usersArray;
+
+            // Check if the file already exists and has content
+            if (file.exists() && file.length() != 0) {
+                JsonNode rootNode = objectMapper.readTree(file);
+                usersArray = (ArrayNode) rootNode;
+            } else {
+                usersArray = objectMapper.createArrayNode();
             }
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file, true)); // Append mode
-            writer.write(name + ", " + email);
-            writer.newLine(); // Add a new line after each entry
-            writer.close();
+
+            // Create a new JSON object for the user
+            ObjectNode newUser = objectMapper.createObjectNode();
+            newUser.put("name", name);
+            newUser.put("email", email);
+            usersArray.add(newUser);
+
+            // Write the updated JSON array to the file
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, usersArray);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

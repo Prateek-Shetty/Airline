@@ -1,7 +1,10 @@
 package com.airline.swingui;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
@@ -9,21 +12,18 @@ import javax.swing.*;
 public class AdminDashboard extends JFrame {
 
     public AdminDashboard() {
-        // Set up the main frame properties
         setTitle("Skyfall Admin Dashboard");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        // Add the main panel to the frame
         add(createMainPanel(), BorderLayout.CENTER);
-        setLocationRelativeTo(null);  // Center the window
+        setLocationRelativeTo(null);
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             AdminDashboard dashboard = new AdminDashboard();
-            dashboard.setVisible(true);  // Show the admin dashboard window
+            dashboard.setVisible(true);
         });
     }
 
@@ -56,7 +56,7 @@ public class AdminDashboard extends JFrame {
         editFrame.setSize(600, 400);
         editFrame.setLayout(new BorderLayout());
 
-        List<String[]> userData = fetchUserDataFromFile("booking_confirmation.txt");
+        List<String[]> userData = fetchUserDataFromJsonFile("booking_confirmation.json");
         String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
         JTable table = new JTable(userData.toArray(new String[0][]), columnNames);
 
@@ -66,27 +66,26 @@ public class AdminDashboard extends JFrame {
         editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    private static List<String[]> fetchUserDataFromFile(String filePath) {
+    private static List<String[]> fetchUserDataFromJsonFile(String filePath) {
         List<String[]> userData = new ArrayList<>();
-    
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith("Flight Number:")) {
-                    String flightNumber = line.split(": ")[1].trim();
-                    String departure = reader.readLine().split(": ")[1].trim();
-                    String arrival = reader.readLine().split(": ")[1].trim();
-                    String date = reader.readLine().split(": ")[1].trim();
-                    String time = reader.readLine().split(": ")[1].trim();
-                    String price = reader.readLine().split(": ")[1].trim();
-                    
-                    userData.add(new String[] {flightNumber, departure, arrival, date, time, price});
-                }
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonNode rootNode = mapper.readTree(new File(filePath));
+            for (JsonNode node : rootNode) {
+                String flightNumber = node.get("flightNumber").asText();
+                String departure = node.get("departure").asText();
+                String arrival = node.get("arrival").asText();
+                String date = node.get("date").asText();
+                String time = node.get("time").asText();
+                String price = node.get("price").asText();
+                
+                userData.add(new String[]{flightNumber, departure, arrival, date, time, price});
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+
         return userData;
     }
 
@@ -95,7 +94,7 @@ public class AdminDashboard extends JFrame {
         customerFrame.setSize(600, 400);
         customerFrame.setLayout(new BorderLayout());
 
-        List<String[]> customerData = fetchCustomerDataFromFile("user.txt");
+        List<String[]> customerData = fetchCustomerDataFromJsonFile("user.json");
 
         String[] columnNames = {"Customer Name", "Contact Info"};
         JTable table = new JTable(customerData.toArray(new String[0][]), columnNames);
@@ -106,20 +105,21 @@ public class AdminDashboard extends JFrame {
         customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    private static List<String[]> fetchCustomerDataFromFile(String filePath) {
+    private static List<String[]> fetchCustomerDataFromJsonFile(String filePath) {
         List<String[]> data = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Assuming each line contains "Name, Email" format
-                String[] user = line.split(", ");
-                if (user.length == 2) {
-                    data.add(user);
-                }
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonNode rootNode = mapper.readTree(new File(filePath));
+            for (JsonNode node : rootNode) {
+                String name = node.get("name").asText();
+                String email = node.get("email").asText();
+                data.add(new String[]{name, email});
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return data;
     }
 
@@ -132,7 +132,7 @@ public class AdminDashboard extends JFrame {
             flightFrame.setLayout(new BorderLayout());
 
             String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
-            List<String[]> flightData = fetchFlightDataFromFile("booking_confirmation.txt");
+            List<String[]> flightData = fetchFlightDataFromJsonFile("booking_confirmation.json");
 
             JTable table = new JTable(flightData.toArray(new String[0][]), columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
@@ -143,23 +143,26 @@ public class AdminDashboard extends JFrame {
         }
     }
 
-    private static List<String[]> fetchFlightDataFromFile(String filePath) {
+    private static List<String[]> fetchFlightDataFromJsonFile(String filePath) {
         List<String[]> flightData = new ArrayList<>();
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] columns = line.split("\t");
-                if (columns.length >= 6) { 
-                    flightData.add(new String[] {
-                        columns[0], columns[1], columns[2], columns[3], columns[4], columns[5]
-                    });
-                }
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            JsonNode rootNode = mapper.readTree(new File(filePath));
+            for (JsonNode node : rootNode) {
+                String flightNumber = node.get("flightNumber").asText();
+                String departure = node.get("departure").asText();
+                String arrival = node.get("arrival").asText();
+                String date = node.get("date").asText();
+                String time = node.get("time").asText();
+                String price = node.get("price").asText();
+
+                flightData.add(new String[]{flightNumber, departure, arrival, date, time, price});
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         return flightData;
     }
 }
