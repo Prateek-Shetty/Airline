@@ -66,27 +66,28 @@ public class AdminDashboard extends JFrame {
         editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    private static List<String[]> fetchUserDataFromJsonFile(String filePath) {
-        List<String[]> userData = new ArrayList<>();
+    public static List<String[]> fetchUserDataFromJsonFile(String filePath) {
+        List<String[]> data = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
-
+    
         try {
             JsonNode rootNode = mapper.readTree(new File(filePath));
-            for (JsonNode node : rootNode) {
-                String flightNumber = node.get("flightNumber").asText();
-                String departure = node.get("departure").asText();
-                String arrival = node.get("arrival").asText();
-                String date = node.get("date").asText();
-                String time = node.get("time").asText();
-                String price = node.get("price").asText();
-                
-                userData.add(new String[]{flightNumber, departure, arrival, date, time, price});
+    
+            for (JsonNode booking : rootNode) {
+                String flightNumber = booking.has("Flight Number") ? booking.get("Flight Number").asText() : "N/A";
+                String departure = booking.has("Departure") ? booking.get("Departure").asText() : "N/A";
+                String arrival = booking.has("Arrival") ? booking.get("Arrival").asText() : "N/A";
+                String date = booking.has("Date") ? booking.get("Date").asText() : "N/A";
+                String time = booking.has("Time") ? booking.get("Time").asText() : "N/A";
+                String price = booking.has("Price") ? booking.get("Price").asText() : "N/A";
+    
+                data.add(new String[]{flightNumber, departure, arrival, date, time, price});
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return userData;
+    
+        return data;
     }
 
     private static void openCustomerDataWindow() {
@@ -143,26 +144,26 @@ public class AdminDashboard extends JFrame {
         }
     }
 
-    private static List<String[]> fetchFlightDataFromJsonFile(String filePath) {
-        List<String[]> flightData = new ArrayList<>();
+    public static List<String[]> fetchFlightDataFromJsonFile(String filePath) {
+        List<String[]> data = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
-
+    
         try {
             JsonNode rootNode = mapper.readTree(new File(filePath));
-            for (JsonNode node : rootNode) {
-                String flightNumber = node.get("flightNumber").asText();
-                String departure = node.get("departure").asText();
-                String arrival = node.get("arrival").asText();
-                String date = node.get("date").asText();
-                String time = node.get("time").asText();
-                String price = node.get("price").asText();
-
-                flightData.add(new String[]{flightNumber, departure, arrival, date, time, price});
+    
+            for (JsonNode flight : rootNode) {
+                String flightNumber = flight.has("Flight Number") ? flight.get("Flight Number").asText() : "N/A";
+                String departure = flight.has("Departure") ? flight.get("Departure").asText() : "N/A";
+                String arrival = flight.has("Arrival") ? flight.get("Arrival").asText() : "N/A";
+                String date = flight.has("Date") ? flight.get("Date").asText() : "N/A";
+                String time = flight.has("Time") ? flight.get("Time").asText() : "N/A";
+                String price = flight.has("Price") ? flight.get("Price").asText() : "N/A";
+    
+                data.add(new String[]{flightNumber, departure, arrival, date, time, price});
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return flightData;
+                return data;
     }
 }
