@@ -14,7 +14,6 @@ import java.util.List;
 public class AdminDashboard extends JFrame {
 
     private static final String[] FLIGHT_COLUMNS = { "Flight Number", "Departure", "Arrival", "Date", "Time", "Price" };
-    private static final String[] CUSTOMER_COLUMNS = { "Customer Name", "Contact Info" };
 
     public AdminDashboard() {
         setTitle("Skyfall Admin Dashboard");
@@ -42,20 +41,16 @@ public class AdminDashboard extends JFrame {
 
         // Title Label styling
         JLabel titleLabel = new JLabel("Admin Dashboard", SwingConstants.LEFT);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30)); // Increased font size for prominence
-        titleLabel.setForeground(new Color(255, 255, 255)); // White color for better contrast
-        titleLabel.setOpaque(true); // Optional: Makes the label's background visible if you apply a background
-                                    // color
-        titleLabel.setBackground(new Color(0, 51, 102)); // Dark background for the title
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Adds some padding around the text
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setBackground(new Color(0, 51, 102));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         // Description Label styling
         JLabel descriptionLabel = new JLabel("Manage flight and customer data seamlessly.", SwingConstants.LEFT);
-        descriptionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16)); // Italicized to distinguish from title
-        descriptionLabel.setForeground(new Color(220, 220, 220)); // Lighter color for description
-        descriptionLabel.setOpaque(true); // Optional
-        descriptionLabel.setBackground(new Color(0, 51, 102)); // Same dark background for consistency
-        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20)); // Adds padding around description
+        descriptionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+        descriptionLabel.setForeground(new Color(220, 220, 220));
+        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
 
         // Profile icon placeholder on the right side
         JLabel profileIcon = new JLabel(new ImageIcon(
@@ -76,7 +71,7 @@ public class AdminDashboard extends JFrame {
 
     private static JPanel createSidebarPanel() {
         JPanel sidebar = new JPanel();
-        sidebar.setLayout(new GridLayout(5, 1, 0, 15));
+        sidebar.setLayout(new GridLayout(4, 1, 0, 15)); // Adjusted to 4 rows to remove one button
         sidebar.setBackground(new Color(245, 245, 245));
         sidebar.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -84,15 +79,13 @@ public class AdminDashboard extends JFrame {
         menuLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
         JButton flightsButton = createStyledButton("Flights");
-        JButton customersButton = createStyledButton("Customers");
         JButton analyticsButton = createStyledButton("Analytics");
         JButton settingsButton = createStyledButton("Settings");
 
         sidebar.add(menuLabel);
         sidebar.add(flightsButton);
-        sidebar.add(customersButton);
         sidebar.add(analyticsButton);
-        sidebar.add(settingsButton);
+        sidebar.add(settingsButton); // Removed the customersButton
 
         return sidebar;
     }
@@ -107,18 +100,15 @@ public class AdminDashboard extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         JButton editUserDataButton = createStyledButton("Edit Existing User Data");
-        JButton viewCustomerInfoButton = createStyledButton("View Customer Info");
         JButton viewFlightsButton = createStyledButton("View Flights");
 
         editUserDataButton.addActionListener(e -> openEditUserDataWindow());
-        viewCustomerInfoButton.addActionListener(e -> openCustomerDataWindow());
         viewFlightsButton.addActionListener(e -> new ViewFlightsWindow());
 
         buttonPanel.add(editUserDataButton);
-        buttonPanel.add(viewCustomerInfoButton);
         buttonPanel.add(viewFlightsButton);
 
-        // Add simple analytics display
+        // Analytics panel display
         JPanel analyticsPanel = new JPanel(new GridLayout(1, 3, 10, 10));
         analyticsPanel.setBackground(new Color(245, 245, 245));
 
@@ -187,9 +177,16 @@ public class AdminDashboard extends JFrame {
     private static List<String[]> fetchDataFromJsonFile(String filePath, String[] fields) {
         List<String[]> data = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
-
+    
         try {
             JsonNode rootNode = mapper.readTree(new File(filePath));
+    
+            if (!rootNode.isArray()) {
+                JOptionPane.showMessageDialog(null, "Invalid JSON format. Expected an array.", "Data Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return data;
+            }
+    
             for (JsonNode node : rootNode) {
                 String[] rowData = new String[fields.length];
                 for (int i = 0; i < fields.length; i++) {
@@ -203,24 +200,6 @@ public class AdminDashboard extends JFrame {
             e.printStackTrace();
         }
         return data;
-    }
-
-    private static void openCustomerDataWindow() {
-        JFrame customerFrame = new JFrame("Customer Details");
-        customerFrame.setSize(700, 400);
-        customerFrame.setLayout(new BorderLayout());
-
-        List<String[]> customerData = fetchDataFromJsonFile("user.json", CUSTOMER_COLUMNS);
-        if (customerData == null)
-            return;
-
-        JTable table = new JTable(customerData.toArray(new String[0][]), CUSTOMER_COLUMNS);
-        styleTable(table);
-
-        JScrollPane scrollPane = new JScrollPane(table);
-        customerFrame.add(scrollPane, BorderLayout.CENTER);
-        customerFrame.setVisible(true);
-        customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     static class ViewFlightsWindow {

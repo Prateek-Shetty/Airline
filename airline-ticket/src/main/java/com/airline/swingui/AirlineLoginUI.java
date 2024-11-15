@@ -106,6 +106,7 @@ public class AirlineLoginUI extends JFrame {
             public void mouseEntered(MouseEvent evt) {
                 loginButton.setBackground(new Color(0, 123, 255));
             }
+
             public void mouseExited(MouseEvent evt) {
                 loginButton.setBackground(new Color(33, 150, 243));
             }
@@ -114,7 +115,22 @@ public class AirlineLoginUI extends JFrame {
         loginButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             String email = userField.getText().trim();
-            String password = new String(passField.getPassword());
+            String password = new String(passField.getPassword()).trim();
+
+            // Validate email format
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Invalid Email", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Validate password
+            if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Password cannot be empty.", "Invalid Password", JOptionPane.ERROR_MESSAGE);
+                return;
+            } else if (password.length() < 4) {
+                JOptionPane.showMessageDialog(this, "Password must be at least 4 characters long.", "Invalid Password", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             // Admin login check
             if (name.equals("Admin") && email.equals("admin@gmail.com") && password.equals("admin123")) {
