@@ -2,22 +2,30 @@ package com.airline.swingui;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
 
 public class AdminDashboard extends JFrame {
 
+    private static final String[] FLIGHT_COLUMNS = { "Flight Number", "Departure", "Arrival", "Date", "Time", "Price" };
+    private static final String[] CUSTOMER_COLUMNS = { "Customer Name", "Contact Info" };
+
     public AdminDashboard() {
         setTitle("Skyfall Admin Dashboard");
-        setSize(600, 400);
+        setSize(950, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        add(createMainPanel(), BorderLayout.CENTER);
         setLocationRelativeTo(null);
+
+        add(createHeaderPanel(), BorderLayout.NORTH);
+        add(createMainPanel(), BorderLayout.CENTER);
+        add(createSidebarPanel(), BorderLayout.WEST); // Sidebar added
     }
 
     public static void main(String[] args) {
@@ -27,38 +35,148 @@ public class AdminDashboard extends JFrame {
         });
     }
 
-    private static JPanel createMainPanel() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(3, 1, 10, 10));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
-        JButton editUserDataButton = new JButton("Edit Existing User Data");
-        JButton viewCustomerInfoButton = new JButton("View Customer Info");
-        JButton viewFlightsButton = new JButton("View Flights");
+    private static JPanel createHeaderPanel() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(33, 150, 243));
+        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        editUserDataButton.setFont(new Font("Arial", Font.BOLD, 14));
-        viewCustomerInfoButton.setFont(new Font("Arial", Font.BOLD, 14));
-        viewFlightsButton.setFont(new Font("Arial", Font.BOLD, 14));
+        // Title Label styling
+        JLabel titleLabel = new JLabel("Admin Dashboard", SwingConstants.LEFT);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30)); // Increased font size for prominence
+        titleLabel.setForeground(new Color(255, 255, 255)); // White color for better contrast
+        titleLabel.setOpaque(true); // Optional: Makes the label's background visible if you apply a background
+                                    // color
+        titleLabel.setBackground(new Color(0, 51, 102)); // Dark background for the title
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Adds some padding around the text
+
+        // Description Label styling
+        JLabel descriptionLabel = new JLabel("Manage flight and customer data seamlessly.", SwingConstants.LEFT);
+        descriptionLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16)); // Italicized to distinguish from title
+        descriptionLabel.setForeground(new Color(220, 220, 220)); // Lighter color for description
+        descriptionLabel.setOpaque(true); // Optional
+        descriptionLabel.setBackground(new Color(0, 51, 102)); // Same dark background for consistency
+        descriptionLabel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20)); // Adds padding around description
+
+        // Profile icon placeholder on the right side
+        JLabel profileIcon = new JLabel(new ImageIcon(
+                new ImageIcon("D:\\Airline\\Airline\\airline-ticket\\target\\classes\\images\\airline_logo.png")
+                        .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+        profileIcon.setBorder(new EmptyBorder(0, 0, 0, 20));
+
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rightPanel.setOpaque(false);
+        rightPanel.add(profileIcon);
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(descriptionLabel, BorderLayout.CENTER);
+        headerPanel.add(rightPanel, BorderLayout.EAST);
+
+        return headerPanel;
+    }
+
+    private static JPanel createSidebarPanel() {
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new GridLayout(5, 1, 0, 15));
+        sidebar.setBackground(new Color(245, 245, 245));
+        sidebar.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        JLabel menuLabel = new JLabel("MENU", JLabel.CENTER);
+        menuLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+        JButton flightsButton = createStyledButton("Flights");
+        JButton customersButton = createStyledButton("Customers");
+        JButton analyticsButton = createStyledButton("Analytics");
+        JButton settingsButton = createStyledButton("Settings");
+
+        sidebar.add(menuLabel);
+        sidebar.add(flightsButton);
+        sidebar.add(customersButton);
+        sidebar.add(analyticsButton);
+        sidebar.add(settingsButton);
+
+        return sidebar;
+    }
+
+    private static JPanel createMainPanel() {
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        mainPanel.setBackground(new Color(245, 245, 245));
+
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 15));
+        buttonPanel.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton editUserDataButton = createStyledButton("Edit Existing User Data");
+        JButton viewCustomerInfoButton = createStyledButton("View Customer Info");
+        JButton viewFlightsButton = createStyledButton("View Flights");
 
         editUserDataButton.addActionListener(e -> openEditUserDataWindow());
         viewCustomerInfoButton.addActionListener(e -> openCustomerDataWindow());
         viewFlightsButton.addActionListener(e -> new ViewFlightsWindow());
 
-        mainPanel.add(editUserDataButton);
-        mainPanel.add(viewCustomerInfoButton);
-        mainPanel.add(viewFlightsButton);
+        buttonPanel.add(editUserDataButton);
+        buttonPanel.add(viewCustomerInfoButton);
+        buttonPanel.add(viewFlightsButton);
 
+        // Add simple analytics display
+        JPanel analyticsPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        analyticsPanel.setBackground(new Color(245, 245, 245));
+
+        JLabel totalFlightsLabel = createAnalyticsLabel("Total Flights: 120");
+        JLabel totalCustomersLabel = createAnalyticsLabel("Total Customers: 500");
+        JLabel revenueLabel = createAnalyticsLabel("Revenue: $250K");
+
+        analyticsPanel.add(totalFlightsLabel);
+        analyticsPanel.add(totalCustomersLabel);
+        analyticsPanel.add(revenueLabel);
+
+        mainPanel.add(analyticsPanel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
         return mainPanel;
+    }
+
+    private static JLabel createAnalyticsLabel(String text) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        label.setForeground(new Color(33, 150, 243));
+        label.setOpaque(true);
+        label.setBackground(new Color(235, 235, 235));
+        label.setBorder(new LineBorder(new Color(200, 200, 200), 1, true));
+        return label;
+    }
+
+    private static JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        button.setBackground(new Color(33, 150, 243));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(30, 136, 229));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(33, 150, 243));
+            }
+        });
+        return button;
     }
 
     private static void openEditUserDataWindow() {
         JFrame editFrame = new JFrame("Edit User Data");
-        editFrame.setSize(600, 400);
+        editFrame.setSize(700, 400);
         editFrame.setLayout(new BorderLayout());
 
-        List<String[]> userData = fetchUserDataFromJsonFile("booking_confirmation.json");
-        String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
-        JTable table = new JTable(userData.toArray(new String[0][]), columnNames);
+        List<String[]> userData = fetchDataFromJsonFile("booking_confirmation.json", FLIGHT_COLUMNS);
+        if (userData == null)
+            return;
+
+        JTable table = new JTable(userData.toArray(new String[0][]), FLIGHT_COLUMNS);
+        styleTable(table);
 
         JScrollPane scrollPane = new JScrollPane(table);
         editFrame.add(scrollPane, BorderLayout.CENTER);
@@ -66,62 +184,43 @@ public class AdminDashboard extends JFrame {
         editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
-    public static List<String[]> fetchUserDataFromJsonFile(String filePath) {
-        List<String[]> data = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-    
-        try {
-            JsonNode rootNode = mapper.readTree(new File(filePath));
-    
-            for (JsonNode booking : rootNode) {
-                String flightNumber = booking.has("Flight Number") ? booking.get("Flight Number").asText() : "N/A";
-                String departure = booking.has("Departure") ? booking.get("Departure").asText() : "N/A";
-                String arrival = booking.has("Arrival") ? booking.get("Arrival").asText() : "N/A";
-                String date = booking.has("Date") ? booking.get("Date").asText() : "N/A";
-                String time = booking.has("Time") ? booking.get("Time").asText() : "N/A";
-                String price = booking.has("Price") ? booking.get("Price").asText() : "N/A";
-    
-                data.add(new String[]{flightNumber, departure, arrival, date, time, price});
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    
-        return data;
-    }
-
-    private static void openCustomerDataWindow() {
-        JFrame customerFrame = new JFrame("Customer Details");
-        customerFrame.setSize(600, 400);
-        customerFrame.setLayout(new BorderLayout());
-
-        List<String[]> customerData = fetchCustomerDataFromJsonFile("user.json");
-
-        String[] columnNames = {"Customer Name", "Contact Info"};
-        JTable table = new JTable(customerData.toArray(new String[0][]), columnNames);
-        JScrollPane scrollPane = new JScrollPane(table);
-
-        customerFrame.add(scrollPane, BorderLayout.CENTER);
-        customerFrame.setVisible(true);
-        customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    }
-
-    private static List<String[]> fetchCustomerDataFromJsonFile(String filePath) {
+    private static List<String[]> fetchDataFromJsonFile(String filePath, String[] fields) {
         List<String[]> data = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
 
         try {
             JsonNode rootNode = mapper.readTree(new File(filePath));
             for (JsonNode node : rootNode) {
-                String name = node.get("name").asText();
-                String email = node.get("email").asText();
-                data.add(new String[]{name, email});
+                String[] rowData = new String[fields.length];
+                for (int i = 0; i < fields.length; i++) {
+                    rowData[i] = node.has(fields[i]) ? node.get(fields[i]).asText() : "N/A";
+                }
+                data.add(rowData);
             }
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error loading data from " + filePath, "File Error",
+                    JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
-
         return data;
+    }
+
+    private static void openCustomerDataWindow() {
+        JFrame customerFrame = new JFrame("Customer Details");
+        customerFrame.setSize(700, 400);
+        customerFrame.setLayout(new BorderLayout());
+
+        List<String[]> customerData = fetchDataFromJsonFile("user.json", CUSTOMER_COLUMNS);
+        if (customerData == null)
+            return;
+
+        JTable table = new JTable(customerData.toArray(new String[0][]), CUSTOMER_COLUMNS);
+        styleTable(table);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        customerFrame.add(scrollPane, BorderLayout.CENTER);
+        customerFrame.setVisible(true);
+        customerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     static class ViewFlightsWindow {
@@ -129,41 +228,30 @@ public class AdminDashboard extends JFrame {
 
         ViewFlightsWindow() {
             flightFrame = new JFrame("View Flights");
-            flightFrame.setSize(600, 400);
+            flightFrame.setSize(700, 400);
             flightFrame.setLayout(new BorderLayout());
 
-            String[] columnNames = {"Flight Number", "Departure", "Arrival", "Date", "Time", "Price"};
-            List<String[]> flightData = fetchFlightDataFromJsonFile("booking_confirmation.json");
+            List<String[]> flightData = fetchDataFromJsonFile("booking_confirmation.json", FLIGHT_COLUMNS);
+            if (flightData == null)
+                return;
 
-            JTable table = new JTable(flightData.toArray(new String[0][]), columnNames);
+            JTable table = new JTable(flightData.toArray(new String[0][]), FLIGHT_COLUMNS);
+            styleTable(table);
+
             JScrollPane scrollPane = new JScrollPane(table);
-
             flightFrame.add(scrollPane, BorderLayout.CENTER);
             flightFrame.setVisible(true);
             flightFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
     }
 
-    public static List<String[]> fetchFlightDataFromJsonFile(String filePath) {
-        List<String[]> data = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-    
-        try {
-            JsonNode rootNode = mapper.readTree(new File(filePath));
-    
-            for (JsonNode flight : rootNode) {
-                String flightNumber = flight.has("Flight Number") ? flight.get("Flight Number").asText() : "N/A";
-                String departure = flight.has("Departure") ? flight.get("Departure").asText() : "N/A";
-                String arrival = flight.has("Arrival") ? flight.get("Arrival").asText() : "N/A";
-                String date = flight.has("Date") ? flight.get("Date").asText() : "N/A";
-                String time = flight.has("Time") ? flight.get("Time").asText() : "N/A";
-                String price = flight.has("Price") ? flight.get("Price").asText() : "N/A";
-    
-                data.add(new String[]{flightNumber, departure, arrival, date, time, price});
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-                return data;
+    private static void styleTable(JTable table) {
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.setRowHeight(25);
+        table.setShowGrid(true);
+        table.setGridColor(new Color(200, 200, 200));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        table.getTableHeader().setBackground(new Color(33, 150, 243));
+        table.getTableHeader().setForeground(Color.WHITE);
     }
 }
